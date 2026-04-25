@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#e5eeff",
+                    "surface-tint": "#186872",
+                    "on-surface-variant": "#3f484a",
+                    "tertiary": "#2d3e50",
+                    "outline-variant": "#bec8ca",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "surface-dim": "#cbdbf5",
+                    "on-primary-fixed-variant": "#004f57",
+                    "surface-container-high": "#dce9ff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#005138",
+                    "outline": "#6f797a",
+                    "error": "#ba1a1a",
+                    "on-background": "#0b1c30",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface": "#f8f9ff",
+                    "inverse-primary": "#8cd2dd",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#7afac3",
+                    "secondary-fixed-dim": "#5bdda8",
+                    "background": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#d2e4fb",
+                    "tertiary-container": "#445568",
+                    "primary-fixed": "#a8eefa",
+                    "tertiary-fixed-dim": "#b6c8df",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#37485b",
+                    "on-secondary-container": "#007350",
+                    "primary-container": "#005d67",
+                    "on-tertiary-fixed": "#0a1d2d",
+                    "secondary": "#006c4b",
+                    "inverse-surface": "#213145",
+                    "secondary-container": "#7afac3",
+                    "primary": "#00444b",
+                    "on-primary-fixed": "#001f24",
+                    "primary-fixed-dim": "#8cd2dd",
+                    "on-primary-container": "#8ed3df",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#d3e4fe",
+                    "surface-container-highest": "#d3e4fe",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-tertiary-container": "#b8c9e0",
+                    "on-secondary-fixed": "#002114"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "touch_target_min": "48px",
+                    "margin_desktop": "64px",
+                    "stack_md": "24px",
+                    "gutter": "24px",
+                    "margin_mobile": "16px",
+                    "base": "8px",
+                    "stack_sm": "12px",
+                    "stack_lg": "40px"
+            },
+            "fontFamily": {
+                    "h2": ["Manrope"],
+                    "body-md": ["Public Sans"],
+                    "label-caps": ["Public Sans"],
+                    "h1": ["Manrope"],
+                    "body-lg": ["Public Sans"],
+                    "h3": ["Manrope"]
+            },
+            "fontSize": {
+                    "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Top AppBar - Updated with Language Toggle -->
+<header class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] sticky top-0 z-50">
+<div class="flex justify-between items-center px-4 md:px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<button class="text-[#005D67] dark:text-teal-400 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-full flex items-center justify-center active:scale-95 duration-150">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-manrope text-base md:text-lg font-bold tracking-tight text-[#005D67] dark:text-teal-400">AushadhiSaathi</h1>
+</div>
+<div class="flex items-center gap-4">
+<!-- Language Toggle -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-full border border-outline-variant/30">
+<button class="px-3 py-1 rounded-full text-xs font-bold bg-secondary text-white shadow-sm transition-all">EN</button>
+<button class="px-3 py-1 rounded-full text-xs font-bold text-on-surface-variant hover:bg-white/50 transition-all">ಕನ್ನಡ</button>
+</div>
+<!-- Desktop Nav -->
+<div class="hidden md:flex gap-6 items-center ml-4">
+<span class="text-[#005D67] dark:text-teal-400 font-bold cursor-pointer">Home</span>
+<span class="text-slate-500 dark:text-slate-400 cursor-pointer">Support</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center px-margin_mobile md:px-margin_desktop py-stack_lg">
+<div class="w-full max-w-lg">
+<!-- Hero Image/Graphic Section -->
+<div class="mb-stack_lg text-center">
+<div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary-container mb-stack_sm">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<h2 class="font-h2 text-h2 text-primary mb-2">ASHA Worker Login</h2>
+<h3 class="font-h3 text-h3 text-primary-container">ಆಶಾ ಕಾರ್ಯಕರ್ತರ ಲಾಗಿನ್</h3>
+<p class="text-on-surface-variant mt-2 font-body-md">Enter your professional details to access the portal.</p>
+</div>
+<!-- Login Form Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] p-8 border border-outline-variant/30">
+<form class="space-y-stack_md" id="asha-login-form">
+<!-- Full Name -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Full Name / ಪೂರ್ಣ ಹೆಸರು</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" id="full-name" placeholder="Enter your full name" type="text"/>
+</div>
+</div>
+<!-- NHM ID -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">NHM ID / ಎನ್.ಎಚ್.ಎಂ ಐಡಿ</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">badge</span>
+<input class="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" id="nhm-id" placeholder="e.g. ASHA001" type="text"/>
+</div>
+</div>
+<!-- Phone Number -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Phone Number / ಫೋನ್ ಸಂಖ್ಯೆ</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">call</span>
+<input class="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" id="phone" placeholder="10-digit mobile number" type="tel"/>
+</div>
+</div>
+<!-- Village/Area -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Village/Area / ಗ್ರಾಮ/ಪ್ರದೇಶ</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">location_on</span>
+<select class="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface appearance-none" id="village">
+<option disabled="" selected="" value="">Select your work area</option>
+<option value="hassan">Hassan District</option>
+<option value="mandya">Mandya District</option>
+<option value="mysuru">Mysuru District</option>
+<option value="chikkamagaluru">Chikkamagaluru</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<p class="text-sm text-error hidden" id="form-error"></p>
+<p class="text-sm text-secondary hidden" id="form-success"></p>
+<!-- Login Button -->
+<button class="w-full h-[56px] bg-secondary text-white font-manrope font-bold text-body-lg rounded-xl shadow-lg shadow-secondary/20 hover:bg-on-secondary-container transition-colors active:scale-95 duration-150 border-b-2 border-on-secondary-fixed-variant flex items-center justify-center gap-2 mt-stack_lg" id="login-button" type="submit">
+<span>Login / ಲಾಗಿನ್</span>
+<span class="material-symbols-outlined">login</span>
+</button>
+</form>
+</div>
+<!-- Hint Card -->
+<div class="mt-stack_lg bg-surface-container-low rounded-xl p-6 border border-surface-tint/10 flex gap-4 items-start shadow-sm">
+<div class="bg-primary-container/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div>
+<h4 class="font-h3 text-[16px] text-primary mb-1">Demo Tip</h4>
+<p class="text-on-surface-variant text-body-md">Demo: Use <span class="font-bold text-primary">NHM ID = ASHA001</span> to quickly test the dashboard features.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- App Illustration (Bento Grid Style for Desktop) -->
+<div class="hidden lg:fixed right-margin_desktop top-[120px] bottom-[120px] w-1/3 pointer-events-none overflow-hidden">
+<div class="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+<div class="bg-surface-tint/5 rounded-2xl p-6 flex flex-col justify-end">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm">
+<span class="material-symbols-outlined text-surface-tint">groups</span>
+</div>
+<p class="text-primary font-bold">Community Health Focus</p>
+</div>
+<div class="bg-secondary-container/20 rounded-2xl relative overflow-hidden">
+<img alt="close-up of a healthcare professional in clinical setting" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjdLoVklSmOF-xofE3ijQigduc2vKSgjVGT9kIZhB8MO-5N-b8qzquFZgfU1liZakLOmgpxMeFukwXXz8bYrD2hta26ScL_EH49xrRxiVbiqnvVinKCXnl6H4BRmywnQQ7JStB-YFQFcMDvwPQG2L8Dzy0GPI1FGIqOwFsOLSp9qTTTwdQpG2DhrEZs9Gsoxm_COglhToBLU161V00hgAIjNCel4XbQ4nSAtAJNdr2F20_U6QoiKVOcMhhAtcPca6ap3WjqxRWR6E"/>
+</div>
+<div class="bg-surface-container-high rounded-2xl col-span-2 flex items-center justify-center p-8">
+<div class="text-center">
+<span class="material-symbols-outlined text-5xl text-primary mb-4">analytics</span>
+<p class="text-primary-container font-h3">Real-time Patient Insights</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation - Responsive Toggle -->
+<nav class="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-2 border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_24px_-10px_rgba(0,0,0,0.08)] z-50">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors">
+<span class="material-symbols-outlined">home</span>
+<span class="font-manrope text-[11px] font-semibold">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-manrope text-[11px] font-semibold">Health</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-manrope text-[11px] font-semibold">Support</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#005D67]/10 dark:bg-teal-900/30 text-[#005D67] dark:text-teal-300 rounded-xl px-5 py-1.5">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-manrope text-[11px] font-semibold">Profile</span>
+</div>
+</nav>
+<!-- Background Decoration -->
+<div class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-surface-tint/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary-fixed/20 rounded-full blur-[120px]"></div>
+</div>
+<script>
+        const API_BASE = 'http://127.0.0.1:5000';
+
+        const loginForm = document.getElementById('asha-login-form');
+        const fullNameInput = document.getElementById('full-name');
+        const nhmIdInput = document.getElementById('nhm-id');
+        const phoneInput = document.getElementById('phone');
+        const villageInput = document.getElementById('village');
+        const errorEl = document.getElementById('form-error');
+        const successEl = document.getElementById('form-success');
+        const loginButton = document.getElementById('login-button');
+
+        function setMessage(message, isError) {
+                errorEl.classList.add('hidden');
+                successEl.classList.add('hidden');
+                if (!message) {
+                        return;
+                }
+                if (isError) {
+                        errorEl.textContent = message;
+                        errorEl.classList.remove('hidden');
+                } else {
+                        successEl.textContent = message;
+                        successEl.classList.remove('hidden');
+                }
+        }
+
+        loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                setMessage('', false);
+
+                const payload = {
+                        full_name: fullNameInput.value.trim(),
+                        nhm_id: nhmIdInput.value.trim().toUpperCase(),
+                        phone: phoneInput.value.trim(),
+                        village: villageInput.value.trim(),
+                        language: 'EN'
+                };
+
+                if (!payload.full_name || !payload.nhm_id || payload.phone.replace(/\D/g, '').length !== 10) {
+                        setMessage('Please enter full name, NHM ID, and a valid 10-digit phone number.', true);
+                        return;
+                }
+
+                loginButton.disabled = true;
+                loginButton.classList.add('opacity-70');
+
+                try {
+                        const response = await fetch(API_BASE + '/asha/login', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+
+                        if (!response.ok || !result.success) {
+                                throw new Error(result.error || 'Unable to login at this time.');
+                        }
+
+                        const worker = result.worker || {};
+                        localStorage.setItem('ashaSession', JSON.stringify(worker));
+                        setMessage('Login successful. Redirecting to dashboard...', false);
+
+                        window.setTimeout(() => {
+                                window.location.href = './asha_worker.html';
+                        }, 500);
+                } catch (error) {
+                        setMessage(error.message || 'Unable to reach backend. Make sure Flask is running on port 5000.', true);
+                } finally {
+                        loginButton.disabled = false;
+                        loginButton.classList.remove('opacity-70');
+                }
+        });
+</script>
+</body></html>

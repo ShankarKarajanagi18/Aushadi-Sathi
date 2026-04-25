@@ -1,0 +1,10 @@
+{
+  "name": "aushadhi-frontend",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix aushadhi-app start",
+    "build": "npm --prefix aushadhi-app run build",
+    "test": "npm --prefix aushadhi-app test",
+    "eject": "npm --prefix aushadhi-app eject"
+  }
+}

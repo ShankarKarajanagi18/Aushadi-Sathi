@@ -1,31 +1,22 @@
-from google import genai
-from google.genai import errors
-from google.genai import types
+import base64
 import mimetypes
 from pathlib import Path
+import requests
 import sys
 import time
-from config import GEMINI_API_KEY
+from config import OPENROUTER_API_KEY
 
 VERBOSE = False  # Set to True for debug output
 
-client = None
-MODEL_CANDIDATES = ["gemini-2.5-flash", "gemini-2.0-flash"]
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+MODEL_CANDIDATES = [
+    "google/gemini-2.5-flash-image",
+    "google/gemini-2.5-flash",
+    "openai/gpt-4o-mini",
+    "qwen/qwen2.5-vl-72b-instruct",
+    "meta-llama/llama-3.2-11b-vision-instruct",
+]
 RETRY_DELAYS_SECONDS = [3, 6, 12, 20]
-
-
-def _get_client():
-    global client
-    if client is not None:
-        return client
-
-    if not GEMINI_API_KEY:
-        raise RuntimeError(
-            "GEMINI_API_KEY is not set. Set it as an environment variable before using AI endpoints."
-        )
-
-    client = genai.Client(api_key=GEMINI_API_KEY)
-    return client
 
 
 def _log(msg):
@@ -57,8 +48,10 @@ def _resolve_image_path(image_path):
 
 
 def _get_status_code(error):
-    """Extract HTTP status code from an API error."""
+    """Extract HTTP status code from a requests or API-style error."""
     status_code = getattr(error, "status_code", None)
+    if status_code is None and hasattr(error, "response") and error.response is not None:
+        status_code = error.response.status_code
     if status_code is None:
         status_code = getattr(error, "code", None)
     return status_code
@@ -78,30 +71,88 @@ def _is_quota_exhausted(error):
 
 
 def _is_transient_api_error(error):
-    if not isinstance(error, errors.APIError):
-        return False
     return _get_status_code(error) in (408, 429, 500, 502, 503, 504)
+
+
+def _strip_markdown_fences(text):
+    """Remove markdown code fences (```json ... ```) from API response."""
+    text = text.strip()
+    if text.startswith("```"):
+        # Remove opening fence (e.g. ```json or ```)
+        first_newline = text.index("\n") if "\n" in text else len(text)
+        text = text[first_newline + 1:]
+    if text.endswith("```"):
+        text = text[:-3]
+    return text.strip()
+
+
+def _extract_openrouter_text(response_json):
+    choices = response_json.get("choices") or []
+    if not choices:
+        return ""
+
+    message = choices[0].get("message") or {}
+    content = message.get("content", "")
+
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "text":
+                parts.append(item.get("text", ""))
+        return "\n".join([part for part in parts if part])
+
+    return str(content)
+
+
+def _call_openrouter(model_name, prompt, image_bytes, mime_type):
+    image_b64 = base64.b64encode(image_bytes).decode("ascii")
+    payload = {
+        "model": model_name,
+        "temperature": 0,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{mime_type};base64,{image_b64}",
+                        },
+                    },
+                ],
+            }
+        ],
+    }
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://github.com/ShankarKarajanagi18/AushadhiSaathi",
+        "X-Title": "AushadhiSaathi",
+    }
+
+    response = requests.post(OPENROUTER_URL, headers=headers, json=payload, timeout=60)
+    response.raise_for_status()
+    response_json = response.json()
+    return _extract_openrouter_text(response_json)
 
 
 def _generate_with_resilience(prompt, image_bytes, mime_type):
     last_error = None
     error_details = []
-    active_client = _get_client()
 
     for model_name in MODEL_CANDIDATES:
         _log(f"Trying model: {model_name}")
         for attempt, delay in enumerate(RETRY_DELAYS_SECONDS, start=1):
             try:
-                response = active_client.models.generate_content(
-                    model=model_name,
-                    contents=[
-                        prompt,
-                        types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                    ],
-                )
-                return response.text
+                response_text = _call_openrouter(model_name, prompt, image_bytes, mime_type)
+                return _strip_markdown_fences(response_text)
 
-            except errors.APIError as error:
+            except requests.HTTPError as error:
                 last_error = error
                 status_code = _get_status_code(error)
                 detail = f"Model={model_name}, attempt={attempt}, status={status_code}, error={error}"
@@ -121,7 +172,7 @@ def _generate_with_resilience(prompt, image_bytes, mime_type):
                 # Non-retryable error — fail immediately with details
                 if not _is_transient_api_error(error):
                     raise RuntimeError(
-                        f"Gemini API request failed (status {status_code}): {error}"
+                        f"OpenRouter request failed (status {status_code}): {error}"
                     ) from error
 
                 # Retryable error — wait and retry
@@ -134,7 +185,7 @@ def _generate_with_resilience(prompt, image_bytes, mime_type):
                 _log(f"Exhausted retries for {model_name}")
                 break
 
-            except Exception as error:
+            except (requests.RequestException, ValueError) as error:
                 # Catch unexpected errors (network issues, timeouts, etc.)
                 last_error = error
                 detail = f"Model={model_name}, attempt={attempt}, unexpected_error={type(error).__name__}: {error}"
@@ -150,14 +201,14 @@ def _generate_with_resilience(prompt, image_bytes, mime_type):
     # Build a detailed error message
     details_str = "\n  ".join(error_details) if error_details else "No error details captured."
     error_msg = (
-        f"Gemini API failed after trying all models and retries.\n"
+        f"OpenRouter API failed after trying all models and retries.\n"
         f"Error details:\n  {details_str}\n"
         f"Possible fixes:\n"
-        f"  1. Check if your API key is valid (config.py)\n"
-        f"  2. Check your quota at https://console.cloud.google.com/apis/api/generativelanguage.googleapis.com/quotas\n"
-        f"  3. Check billing is enabled at https://aistudio.google.com/apikey\n"
+        f"  1. Check if your OpenRouter API key is valid (config.py)\n"
+        f"  2. Check your OpenRouter credits/limits at https://openrouter.ai/settings/credits\n"
+        f"  3. Check model availability at https://openrouter.ai/models\n"
         f"  4. Wait a minute and try again (rate limiting)\n"
-        f"  5. Try generating a new API key at https://aistudio.google.com/apikey"
+        f"  5. Try generating a new API key at https://openrouter.ai/keys"
     )
 
     if last_error is not None:

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AushadhiSaathi - ASHA Worker Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Public+Sans:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#6f797a",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed-dim": "#5bdda8",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "surface": "#f8f9ff",
+                    "on-secondary-container": "#007350",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#004f57",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#002114",
+                    "tertiary-fixed-dim": "#b6c8df",
+                    "surface-tint": "#186872",
+                    "primary-container": "#005d67",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#d3e4fe",
+                    "surface-bright": "#f8f9ff",
+                    "on-background": "#0b1c30",
+                    "secondary": "#006c4b",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "inverse-primary": "#8cd2dd",
+                    "on-surface-variant": "#3f484a",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-high": "#dce9ff",
+                    "on-tertiary-fixed": "#0a1d2d",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#7afac3",
+                    "on-primary-fixed": "#001f24",
+                    "on-primary-container": "#8ed3df",
+                    "primary-fixed": "#a8eefa",
+                    "tertiary-container": "#445568",
+                    "primary": "#00444b",
+                    "on-secondary-fixed-variant": "#005138",
+                    "outline-variant": "#bec8ca",
+                    "background": "#f8f9ff",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#d3e4fe",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#b8c9e0",
+                    "tertiary": "#2d3e50",
+                    "primary-fixed-dim": "#8cd2dd",
+                    "tertiary-fixed": "#d2e4fb",
+                    "on-tertiary-fixed-variant": "#37485b",
+                    "secondary-container": "#7afac3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "gutter": "24px",
+                    "margin_desktop": "64px",
+                    "stack_sm": "12px",
+                    "margin_mobile": "16px",
+                    "touch_target_min": "48px",
+                    "stack_lg": "40px",
+                    "stack_md": "24px"
+            },
+            "fontFamily": {
+                    "h2": ["Manrope"],
+                    "h3": ["Manrope"],
+                    "body-md": ["Public Sans"],
+                    "body-lg": ["Public Sans"],
+                    "label-caps": ["Public Sans"],
+                    "h1": ["Manrope"]
+            },
+            "fontSize": {
+                    "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .scanner-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #5bdda8, transparent);
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md min-h-screen pb-24">
+<!-- TopAppBar Shell -->
+<header class="bg-white dark:bg-slate-900 shadow-sm border-b border-slate-100 dark:border-slate-800 flex justify-between items-center w-full px-4 h-16 sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a professional female healthcare worker in uniform with a friendly expression and warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcf7uGVt9Vze4vEC3HGE9qnvlKg4OZcxoZbbquwDQrirgLY40E7gua3yyWcNs-ofXT7KWOMxvpuqArVlGthaZohoAvfGumN7Y83UnnvQG0sDUVOyuzgvW8I7jHJrLlr84L7nN1W1x8Lp3zmdZCa03fh_gXmjoPEnC7n9gQQllGjccvYDKyn0AON7QKboDvYW8dZUBYcseN5QTxEFz4frJA2nIPleEb3T7hWJDmrC-0EvPYU1-mA3IUeTzceSIikIuU_xf4byJR0RE"/>
+</div>
+<div>
+<p class="font-h3 text-base text-[#005D67] leading-none" id="worker-name">ASHA Worker</p>
+<p class="text-[10px] text-outline font-label-caps uppercase" id="worker-nhm">NHM ID</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="transition-all duration-200 active:scale-95 bg-surface-container hover:bg-slate-50 px-3 py-1.5 rounded-lg border border-outline-variant flex items-center gap-2">
+<span class="text-label-caps font-bold text-[#005D67]">EN/KN</span>
+<span class="material-symbols-outlined text-[18px]">language</span>
+</button>
+</div>
+</header>
+<main class="max-w-2xl mx-auto px-4 pt-6 space-y-stack_md">
+<!-- Patient Info Section -->
+<section class="space-y-stack_sm">
+<label class="font-label-caps text-on-surface-variant block ml-1">
+                PATIENT PHONE NUMBER / ರೋಗಿಯ ಫೋನ್ ಸಂಖ್ಯೆ
+            </label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">call</span>
+<input class="w-full h-[56px] pl-12 pr-4 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all text-body-lg" id="patient-phone" placeholder="Enter 10 digit number" type="tel"/>
+</div>
+<p class="text-sm text-on-surface-variant ml-1 hidden" id="dashboard-status"></p>
+</section>
+<!-- Primary Actions Tabs -->
+<div class="grid grid-cols-2 gap-3 p-1 bg-surface-container rounded-2xl">
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-body-md transition-all text-slate-500 hover:bg-white/50" id="tab-scan">
+<span class="material-symbols-outlined">document_scanner</span>
+<span>Scan</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-body-md transition-all bg-white text-[#005D67] shadow-sm" id="tab-verify">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+<span>Verify</span>
+</button>
+</div>
+<!-- Scanning/Verification Canvas -->
+<section class="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-900 shadow-xl group border-4 border-white">
+<img class="w-full h-full object-cover opacity-60" data-alt="High angle shot of medical prescription and pill blisters on a clean clinic table under bright artificial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6r9FvMKwOK3RSC0QInboZ8B5GxMPidDfSJIJsPvcAeb2NtWsRqFciEzDR2Ez_-aAWq-p2H6jhFSxg9_KG6V6YndvK-WaTvx3K8A555DswbgzLNbooPX3Ztb36mdszF_IHQywuvqNXz6QtQWhE353bLqdh25OiL8IHin5lLOVjQl5VUtb6-C3ukdW_QAjqzF9RUmeRH55vBgsYveFxAgC2VVV992n_RmtMJnzbrqJP4n5t0CGHuMfHzHrNjjZTsT676ONqg2kNSsw"/>
+<!-- Scanner UI Overlay -->
+<div class="absolute inset-0 flex flex-col items-center justify-center p-8">
+<div class="relative w-full h-full border-2 border-dashed border-secondary-fixed/50 rounded-2xl">
+<div class="scanner-line absolute w-full left-0"></div>
+<!-- Corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-secondary-fixed rounded-tl-lg"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-secondary-fixed rounded-tr-lg"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-secondary-fixed rounded-bl-lg"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-secondary-fixed rounded-br-lg"></div>
+</div>
+</div>
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full flex items-center gap-2 text-white text-label-caps">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+                ACTIVE SCANNING / ಸಕ್ರಿಯ ಸ್ಕ್ಯಾನಿಂಗ್
+            </div>
+</section>
+<!-- Results Section -->
+<section class="space-y-stack_sm">
+<h3 class="font-h3 text-lg flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">medical_information</span>
+                Scanned Medicines / ಸ್ಕ್ಯಾನ್ ಮಾಡಿದ ಔಷಧಿಗಳು
+            </h3>
+<div class="space-y-3" id="medicine-results">
+<!-- Medicine Card 1 -->
+<div class="bg-white p-4 rounded-2xl shadow-[0_4px_16px_rgba(0,93,103,0.04)] border border-slate-50 flex items-start gap-4">
+<div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-3xl">pill</span>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-body-lg text-on-surface leading-tight">Paracetamol 500mg</h4>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full font-bold">VERIFIED</span>
+</div>
+<p class="text-on-surface-variant font-medium">1 tablet / ಮಾತ್ರೆ</p>
+<div class="flex flex-wrap gap-2 pt-1">
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">wb_sunny</span> Morning
+                            </span>
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">light_mode</span> Afternoon
+                            </span>
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">dark_mode</span> Night
+                            </span>
+</div>
+</div>
+</div>
+<!-- Medicine Card 2 -->
+<div class="bg-white p-4 rounded-2xl shadow-[0_4px_16px_rgba(0,93,103,0.04)] border border-slate-50 flex items-start gap-4">
+<div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-3xl">medication_liquid</span>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex justify-between items-start">
+<h4 class="font-bold text-body-lg text-on-surface leading-tight">Amoxicillin 250mg</h4>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full font-bold">VERIFIED</span>
+</div>
+<p class="text-on-surface-variant font-medium">1 capsule / ಕ್ಯಾಪ್ಸುಲ್</p>
+<div class="flex flex-wrap gap-2 pt-1">
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">wb_sunny</span> Morning
+                            </span>
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant opacity-40">
+<span class="material-symbols-outlined text-[16px]">light_mode</span> Afternoon
+                            </span>
+<span class="flex items-center gap-1 bg-surface px-2 py-1 rounded-lg text-label-caps border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]">dark_mode</span> Night
+                            </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SMS Preview Box -->
+<section class="space-y-stack_sm">
+<label class="font-label-caps text-on-surface-variant block ml-1 uppercase">
+                SMS Preview / ಸಂದೇಶದ ಮುನ್ನೋಟ
+            </label>
+<div class="bg-slate-100 p-4 rounded-2xl border-2 border-dashed border-outline-variant font-body-md text-on-surface-variant italic" id="sms-preview">
+                "Hello, this is from AushaudiSaathi. Your verified doses for today: 
+                1. Paracetamol (M/A/N) 
+                2. Amoxicillin (M/N). 
+                Please take as directed by your ASHA worker. 
+                ನಮಸ್ಕಾರ, ಇದು ಔಷಧಿ ಸಾಥಿಯಿಂದ. ಇಂದಿನ ನಿಮ್ಮ ಪ್ರಮಾಣಗಳು: 1. ಪ್ಯಾರಸಿಟಮಾಲ್ (ಬೆಳಿಗ್ಗೆ/ಮಧ್ಯಾಹ್ನ/ರಾತ್ರಿ) 2. ಅಮೋಕ್ಸಿಸಿಲಿನ್ (ಬೆಳಿಗ್ಗೆ/ರಾತ್ರಿ). ಆಶಾ ಕಾರ್ಯಕರ್ತೆಯ ಸೂಚನೆಯಂತೆ ತೆಗೆದುಕೊಳ್ಳಿ."
+            </div>
+</section>
+<!-- Primary Call to Action -->
+<button class="w-full bg-[#005D67] text-white py-5 rounded-2xl font-h3 text-lg flex items-center justify-center gap-3 shadow-lg shadow-primary-container/20 transition-transform active:scale-[0.98] border-b-4 border-primary" id="send-sms-button">
+<span class="material-symbols-outlined">send</span>
+            Send SMS to Patient / ರೋಗಿಗೆ SMS ಕಳುಹಿಸಿ
+        </button>
+<!-- Secondary Action: Logout -->
+<div class="flex justify-center pt-8 pb-12">
+<a class="flex items-center gap-2 text-outline hover:text-error transition-colors font-medium" href="#" id="logout-link">
+<span class="material-symbols-outlined">logout</span>
+                Logout / ನಿರ್ಗಮಿಸಿ
+            </a>
+</div>
+</main>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 shadow-[0_-4px_16px_rgba(0,93,103,0.04)]">
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 transition-transform duration-200 ease-in-out active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Manrope'] text-[12px] font-medium">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 transition-transform duration-200 ease-in-out active:scale-90">
+<span class="material-symbols-outlined">history</span>
+<span class="font-['Manrope'] text-[12px] font-medium">History</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-teal-50 dark:bg-teal-900/30 text-[#005D67] dark:text-teal-200 rounded-2xl px-4 py-1 transition-transform duration-200 ease-in-out active:scale-90">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+<span class="font-['Manrope'] text-[12px] font-bold">Verify</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-1 transition-transform duration-200 ease-in-out active:scale-90">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-['Manrope'] text-[12px] font-medium">Logout</span>
+</div>
+</nav>
+<script>
+  const API_BASE = 'http://127.0.0.1:5000';
+  const sessionRaw = localStorage.getItem('ashaSession');
+  let ashaSession = null;
+  try {
+    ashaSession = sessionRaw ? JSON.parse(sessionRaw) : null;
+  } catch (_error) {
+    localStorage.removeItem('ashaSession');
+  }
+
+  if (!ashaSession || !ashaSession.nhm_id) {
+    window.location.href = './asha_login.html';
+  }
+
+  const workerNameEl = document.getElementById('worker-name');
+  const workerNhmEl = document.getElementById('worker-nhm');
+  const patientPhoneInput = document.getElementById('patient-phone');
+  const dashboardStatus = document.getElementById('dashboard-status');
+  const resultsEl = document.getElementById('medicine-results');
+  const smsPreviewEl = document.getElementById('sms-preview');
+  const sendSmsButton = document.getElementById('send-sms-button');
+
+  workerNameEl.textContent = ashaSession.full_name || 'ASHA Worker';
+  workerNhmEl.textContent = (ashaSession.nhm_id || '') + ' • NHM ID';
+
+  function showStatus(message, isError) {
+    dashboardStatus.classList.remove('hidden');
+    dashboardStatus.classList.remove('text-error');
+    dashboardStatus.classList.remove('text-secondary');
+    dashboardStatus.classList.add(isError ? 'text-error' : 'text-secondary');
+    dashboardStatus.textContent = message;
+  }
+
+  function getCurrentPatientPhone() {
+    const phone = (patientPhoneInput.value || '').replace(/\D/g, '');
+    if (phone.length === 10) {
+      localStorage.setItem('currentPatientPhone', phone);
+      return phone;
+    }
+    const stored = localStorage.getItem('currentPatientPhone') || '';
+    return stored.length === 10 ? stored : '';
+  }
+
+  function renderMedicineCards(verifications) {
+    if (!Array.isArray(verifications) || verifications.length === 0) {
+      resultsEl.innerHTML = '<div class="bg-white rounded-2xl p-4 border border-slate-100 text-on-surface-variant">No verification data yet. Scan and verify medicine to see live results.</div>';
+      return;
+    }
+
+    const cards = verifications.map((item) => {
+      const scan = item.scan_result || {};
+      const verdict = item.verdict || {};
+      const drugName = scan.drug_name || 'Unknown Medicine';
+      const dosage = scan.dosage || 'Dose not extracted';
+      const reason = verdict.reason || 'No reason provided';
+      const status = verdict.status || 'UNKNOWN';
+      const badgeClass = status === 'GREEN' ? 'bg-secondary-container text-on-secondary-container' : (status === 'YELLOW' ? 'bg-yellow-100 text-yellow-700' : 'bg-error-container text-error');
+
+      return '<div class="bg-white p-4 rounded-2xl shadow-[0_4px_16px_rgba(0,93,103,0.04)] border border-slate-50">'
+        + '<div class="flex justify-between items-start gap-4">'
+        + '<div><h4 class="font-bold text-body-lg text-on-surface leading-tight">' + drugName + '</h4>'
+        + '<p class="text-on-surface-variant font-medium mt-1">' + dosage + '</p>'
+        + '<p class="text-sm text-on-surface-variant mt-2">' + reason + '</p></div>'
+        + '<span class="' + badgeClass + ' text-[10px] px-2 py-0.5 rounded-full font-bold">' + status + '</span>'
+        + '</div></div>';
+    });
+
+    resultsEl.innerHTML = cards.join('');
+  }
+
+  function buildSmsPreview(verifications, phone) {
+    if (!Array.isArray(verifications) || verifications.length === 0) {
+      return 'No verified medicine entries available yet for SMS.';
+    }
+
+    const lines = verifications.slice(0, 3).map((item, index) => {
+      const scan = item.scan_result || {};
+      const verdict = item.verdict || {};
+      const name = scan.drug_name || 'Medicine';
+      const status = verdict.status || 'UNKNOWN';
+      return (index + 1) + '. ' + name + ' - ' + status;
+    });
+
+    return 'Hello. Verified medicine update for patient ' + (phone || 'N/A') + ':\n' + lines.join('\n') + '\nPlease follow ASHA worker guidance.';
+  }
+
+  async function fetchDashboardAndHistory() {
+    try {
+      const dashboardRes = await fetch(API_BASE + '/asha/dashboard?nhm_id=' + encodeURIComponent(ashaSession.nhm_id));
+      const dashboardJson = await dashboardRes.json();
+      if (!dashboardRes.ok || !dashboardJson.success) {
+        throw new Error(dashboardJson.error || 'Dashboard fetch failed');
+      }
+
+      const phone = getCurrentPatientPhone();
+      const historyUrl = API_BASE + '/asha/workflows/history?nhm_id=' + encodeURIComponent(ashaSession.nhm_id)
+        + (phone ? '&patient_phone=' + encodeURIComponent(phone) : '')
+        + '&limit=5';
+      const historyRes = await fetch(historyUrl);
+      const historyJson = await historyRes.json();
+      if (!historyRes.ok || !historyJson.success) {
+        throw new Error(historyJson.error || 'Workflow history fetch failed');
+      }
+
+      const verifications = (historyJson.history && historyJson.history.verifications) || [];
+      renderMedicineCards(verifications);
+      smsPreviewEl.textContent = buildSmsPreview(verifications, phone);
+      showStatus('Dashboard synced with Firebase data.', false);
+    } catch (error) {
+      showStatus(error.message || 'Unable to load dashboard data.', true);
+    }
+  }
+
+  patientPhoneInput.addEventListener('change', async () => {
+    const phone = getCurrentPatientPhone();
+    if (phone.length !== 10) {
+      showStatus('Enter a valid 10-digit patient number.', true);
+      return;
+    }
+
+    try {
+      await fetch(API_BASE + '/asha/patients/upsert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nhm_id: ashaSession.nhm_id,
+          phone: phone,
+          area: ashaSession.village || ''
+        })
+      });
+      await fetchDashboardAndHistory();
+    } catch (_error) {
+      showStatus('Patient context saved locally, but backend sync failed.', true);
+    }
+  });
+
+  document.getElementById('tab-scan').addEventListener('click', () => {
+    window.location.href = './scan_prescription.html';
+  });
+
+  document.getElementById('tab-verify').addEventListener('click', () => {
+    window.location.href = './med_verification.html';
+  });
+
+  sendSmsButton.addEventListener('click', async () => {
+    const phone = getCurrentPatientPhone();
+    if (phone.length !== 10) {
+      showStatus('Enter patient phone before sending SMS.', true);
+      return;
+    }
+
+    const message = smsPreviewEl.textContent.trim();
+    if (!message) {
+      showStatus('No SMS content available to send.', true);
+      return;
+    }
+
+    try {
+      const response = await fetch(API_BASE + '/asha/workflows/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nhm_id: ashaSession.nhm_id, patient_phone: phone, message: message })
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) {
+        throw new Error(json.error || 'Failed to queue SMS');
+      }
+      showStatus('SMS workflow logged in Firebase.', false);
+      await fetchDashboardAndHistory();
+    } catch (error) {
+      showStatus(error.message || 'Unable to send SMS workflow.', true);
+    }
+  });
+
+  document.getElementById('logout-link').addEventListener('click', (event) => {
+    event.preventDefault();
+    localStorage.removeItem('ashaSession');
+    window.location.href = './asha_login.html';
+  });
+
+  const cachedPhone = localStorage.getItem('currentPatientPhone') || '';
+  if (cachedPhone.length === 10) {
+    patientPhoneInput.value = cachedPhone;
+  }
+  fetchDashboardAndHistory();
+</script>
+</body></html>

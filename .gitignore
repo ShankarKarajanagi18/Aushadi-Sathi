@@ -1,29 +1,63 @@
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.*
+!.env.example
+backend/.env
+backend/firebase-key.json
+firebase-key.json
+
+# ===========================
 # Python
+# ===========================
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.Python
-.pytest_cache/
-
-# Virtual environments
+*$py.class
+*.so
 .venv/
 venv/
 env/
-
-# Secrets and local config
-backend/firebase-key.json
-.env
-backend/.env
-*.key
-*.pem
-
-# Node / React
-node_modules/
-build/
+*.egg-info/
 dist/
+build/
+*.egg
 
-# OS/editor
+# ===========================
+# Node / Frontend
+# ===========================
+node_modules/
+frontend/aushadhi-app/node_modules/
+frontend/aushadhi-app/build/
+frontend/aushadhi-app/.env.local
+frontend/aushadhi-app/.env.development.local
+frontend/aushadhi-app/.env.test.local
+frontend/aushadhi-app/.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===========================
+# IDE & OS
+# ===========================
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===========================
+# Audio output files (generated)
+# ===========================
+backend/audio_output/
+audio_output/
+
+# ===========================
+# Misc
+# ===========================
+*.log
+coverage/
+.pnp
+.pnp.js

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Health Assistant | AushadhiSaathi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Public+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#e5eeff",
+                        "surface-tint": "#186872",
+                        "on-surface-variant": "#3f484a",
+                        "tertiary": "#2d3e50",
+                        "outline-variant": "#bec8ca",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-fixed-variant": "#004f57",
+                        "surface-container-high": "#dce9ff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#005138",
+                        "outline": "#6f797a",
+                        "error": "#ba1a1a",
+                        "on-background": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#8cd2dd",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#7afac3",
+                        "secondary-fixed-dim": "#5bdda8",
+                        "background": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#d2e4fb",
+                        "tertiary-container": "#445568",
+                        "primary-fixed": "#a8eefa",
+                        "tertiary-fixed-dim": "#b6c8df",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#37485b",
+                        "on-secondary-container": "#007350",
+                        "primary-container": "#005d67",
+                        "on-tertiary-fixed": "#0a1d2d",
+                        "secondary": "#006c4b",
+                        "inverse-surface": "#213145",
+                        "secondary-container": "#7afac3",
+                        "primary": "#00444b",
+                        "on-primary-fixed": "#001f24",
+                        "primary-fixed-dim": "#8cd2dd",
+                        "on-primary-container": "#8ed3df",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-highest": "#d3e4fe",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-container": "#b8c9e0",
+                        "on-secondary-fixed": "#002114"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "touch_target_min": "48px",
+                        "margin_desktop": "64px",
+                        "stack_md": "24px",
+                        "gutter": "24px",
+                        "margin_mobile": "16px",
+                        "base": "8px",
+                        "stack_sm": "12px",
+                        "stack_lg": "40px"
+                    },
+                    "fontFamily": {
+                        "h2": ["Manrope"],
+                        "body-md": ["Public Sans"],
+                        "label-caps": ["Public Sans"],
+                        "h1": ["Manrope"],
+                        "body-lg": ["Public Sans"],
+                        "h3": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f8f9ff;
+        }
+        .chat-container {
+            height: calc(100vh - 160px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Top AppBar -->
+<header class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] fixed top-0 w-full z-50">
+<div class="flex justify-between items-center px-4 py-4 w-full">
+<div class="flex items-center gap-2">
+<button class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined text-[#005D67]" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-manrope text-base font-bold tracking-tight text-[#005D67] dark:text-teal-400">Health Assistant</h1>
+<span class="text-[10px] uppercase tracking-widest font-bold text-secondary flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span>
+                    Online
+                </span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<!-- Language Toggle -->
+<div class="flex items-center bg-surface-container-low border border-outline-variant p-0.5 rounded-full">
+<button class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-primary-container text-white shadow-sm transition-all">EN</button>
+<button class="px-2.5 py-1 text-[10px] font-bold rounded-full text-outline hover:text-primary-container transition-all">ಕನ್ನಡ</button>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="smart_toy">smart_toy</span>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-44 px-4 md:px-margin_desktop max-w-4xl mx-auto chat-container overflow-y-auto no-scrollbar" id="chat-scroll-area">
+<!-- Date Divider -->
+<div class="flex justify-center my-stack_md">
+<span class="bg-surface-variant/30 text-outline px-4 py-1 rounded-full font-label-caps uppercase text-[10px]">Today</span>
+</div>
+<!-- Chat Flow -->
+<div class="space-y-stack_md" id="chat-messages">
+<!-- Bot Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center self-start">
+<span class="material-symbols-outlined text-surface-tint text-sm" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="space-y-1">
+<div class="bg-white border border-slate-100 shadow-sm rounded-2xl rounded-tl-none p-4 text-on-surface">
+<p class="font-body-md">Namaskara! How can I help you today? I can help with medicine timings, side effects, or finding ASHAs nearby.</p>
+<p class="mt-1 text-sm text-slate-500 italic">ನಮಸ್ಕಾರ! ನಾನು ಇಂದು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?</p>
+</div>
+<span class="text-[10px] text-slate-400 ml-1">09:41 AM</span>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex flex-row-reverse gap-3 ml-auto max-w-[85%]">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center self-start">
+<span class="material-symbols-outlined text-primary-container text-sm" data-icon="person">person</span>
+</div>
+<div class="space-y-1 text-right">
+<div class="bg-primary-container text-white shadow-md rounded-2xl rounded-tr-none p-4 text-left">
+<p class="font-body-md">I forgot if I should take Metformin before or after food.</p>
+</div>
+<span class="text-[10px] text-slate-400 mr-1">09:42 AM</span>
+</div>
+</div>
+<!-- Bot Message (Rich Result) -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center self-start">
+<span class="material-symbols-outlined text-surface-tint text-sm" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="space-y-1">
+<div class="bg-white border border-slate-100 shadow-sm rounded-2xl rounded-tl-none p-4 space-y-3">
+<div class="flex items-center gap-2 text-primary-container font-bold">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+<span class="font-h3 text-body-md">Medication Guide</span>
+</div>
+<p class="font-body-md">Metformin is usually taken <strong>with or after meals</strong> to reduce stomach-related side effects. </p>
+<div class="bg-surface-container/50 p-3 rounded-xl border-l-4 border-primary-container">
+<p class="text-xs font-semibold text-on-surface-variant">Recommended Dosage</p>
+<p class="font-h3 text-[#005D67]">500mg - Twice Daily</p>
+</div>
+<p class="text-[13px] text-slate-500">Would you like me to set a reminder for your next dose?</p>
+</div>
+<span class="text-[10px] text-slate-400 ml-1">09:43 AM</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Bottom Controls -->
+<div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md z-40 pb-4 border-t border-slate-100">
+<!-- Quick Suggestion Chips -->
+<div class="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide no-scrollbar">
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-surface-container rounded-full text-primary-container font-label-caps text-[11px] hover:bg-surface-container transition-colors" data-prompt="Set medicine reminder for 8 PM">
+<span class="material-symbols-outlined text-sm" data-icon="notifications_active">notifications_active</span>
+            Set Reminder
+        </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-surface-container rounded-full text-primary-container font-label-caps text-[11px] hover:bg-surface-container transition-colors" data-prompt="Tell me side effects of this medicine">
+<span class="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+            Side Effects
+        </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-surface-container rounded-full text-primary-container font-label-caps text-[11px] hover:bg-surface-container transition-colors" data-prompt="Find doctor nearby">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+            Doctor Nearby
+        </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-surface-container rounded-full text-primary-container font-label-caps text-[11px] hover:bg-surface-container transition-colors" data-prompt="Explain in Kannada">
+<span class="material-symbols-outlined text-sm" data-icon="translate">translate</span>
+            ಕನ್ನಡದಲ್ಲಿ ವಿವರಿಸಿ
+        </button>
+</div>
+<!-- Input Bar -->
+<div class="px-4 flex items-center gap-3">
+<div class="flex-1 relative flex items-center">
+<input class="w-full h-14 pl-5 pr-12 bg-slate-50 border-slate-200 rounded-2xl focus:ring-primary-container focus:border-primary-container text-body-md" id="chat-input" placeholder="Type or speak in Kannada/English..." type="text"/>
+<button class="absolute right-3 w-10 h-10 flex items-center justify-center rounded-xl text-primary-container hover:bg-primary-container/10 transition-colors">
+<span class="material-symbols-outlined" data-icon="mic" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+<button class="w-14 h-14 bg-primary-container text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-transform" id="send-chat-button" type="button">
+<span class="material-symbols-outlined" data-icon="send" data-weight="fill" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-50 rounded-t-2xl border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_24px_-10px_rgba(0,0,0,0.08)] md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67]" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-manrope text-[11px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#005D67]/10 dark:bg-teal-900/30 text-[#005D67] dark:text-teal-300 rounded-xl px-5 py-1.5" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-manrope text-[11px] font-semibold">Support</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67]" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-manrope text-[11px] font-semibold">Health</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67]" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-manrope text-[11px] font-semibold">Profile</span>
+</a>
+</nav>
+<script>
+    const API_BASE = 'http://127.0.0.1:5000';
+    const sessionRaw = localStorage.getItem('ashaSession');
+    let ashaSession = null;
+    try {
+        ashaSession = sessionRaw ? JSON.parse(sessionRaw) : null;
+    } catch (_error) {
+        ashaSession = null;
+    }
+
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-chat-button');
+    const chatScrollArea = document.getElementById('chat-scroll-area');
+    const chipButtons = Array.from(document.querySelectorAll('[data-prompt]'));
+
+    chatMessages.innerHTML = '';
+
+    function appendUserMessage(text) {
+        const html = '<div class="flex flex-row-reverse gap-3 ml-auto max-w-[85%]">'
+            + '<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center self-start">'
+            + '<span class="material-symbols-outlined text-primary-container text-sm">person</span></div>'
+            + '<div class="space-y-1 text-right"><div class="bg-primary-container text-white shadow-md rounded-2xl rounded-tr-none p-4 text-left">'
+            + '<p class="font-body-md"></p></div><span class="text-[10px] text-slate-400 mr-1">just now</span></div></div>';
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html;
+        wrapper.querySelector('p').textContent = text;
+        chatMessages.appendChild(wrapper.firstChild);
+    }
+
+    function appendBotMessage(text) {
+        const html = '<div class="flex gap-3 max-w-[85%]">'
+            + '<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center self-start">'
+            + '<span class="material-symbols-outlined text-surface-tint text-sm">smart_toy</span></div>'
+            + '<div class="space-y-1"><div class="bg-white border border-slate-100 shadow-sm rounded-2xl rounded-tl-none p-4 text-on-surface">'
+            + '<p class="font-body-md"></p></div><span class="text-[10px] text-slate-400 ml-1">just now</span></div></div>';
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = html;
+        wrapper.querySelector('p').textContent = text;
+        chatMessages.appendChild(wrapper.firstChild);
+    }
+
+    async function sendMessage(text) {
+        const message = String(text || '').trim();
+        if (!message) {
+            return;
+        }
+
+        appendUserMessage(message);
+        chatInput.value = '';
+        chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
+
+        try {
+            const response = await fetch(API_BASE + '/assistant/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nhm_id: ashaSession && ashaSession.nhm_id ? ashaSession.nhm_id : '',
+                    patient_phone: localStorage.getItem('currentPatientPhone') || '',
+                    message: message,
+                    language: 'EN'
+                })
+            });
+
+            const json = await response.json();
+            if (!response.ok || !json.success) {
+                throw new Error(json.error || 'Chat request failed');
+            }
+
+            appendBotMessage(json.answer || 'No answer returned.');
+            chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
+        } catch (error) {
+            appendBotMessage(error.message || 'Unable to get response from backend.');
+            chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
+        }
+    }
+
+    sendButton.addEventListener('click', () => sendMessage(chatInput.value));
+    chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage(chatInput.value);
+        }
+    });
+
+    chipButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            sendMessage(button.getAttribute('data-prompt') || '');
+        });
+    });
+
+    appendBotMessage('Namaskara. I am connected to the live backend now. Ask any medicine or dosage question.');
+</script>
+</body></html>

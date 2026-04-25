@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scan Prescription | AushadhiSaathi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Public+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#e5eeff",
+                    "surface-tint": "#186872",
+                    "on-surface-variant": "#3f484a",
+                    "tertiary": "#2d3e50",
+                    "outline-variant": "#bec8ca",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "surface-dim": "#cbdbf5",
+                    "on-primary-fixed-variant": "#004f57",
+                    "surface-container-high": "#dce9ff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#005138",
+                    "outline": "#6f797a",
+                    "error": "#ba1a1a",
+                    "on-background": "#0b1c30",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface": "#f8f9ff",
+                    "inverse-primary": "#8cd2dd",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#7afac3",
+                    "secondary-fixed-dim": "#5bdda8",
+                    "background": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#d2e4fb",
+                    "tertiary-container": "#445568",
+                    "primary-fixed": "#a8eefa",
+                    "tertiary-fixed-dim": "#b6c8df",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#37485b",
+                    "on-secondary-container": "#007350",
+                    "primary-container": "#005d67",
+                    "on-tertiary-fixed": "#0a1d2d",
+                    "secondary": "#006c4b",
+                    "inverse-surface": "#213145",
+                    "secondary-container": "#7afac3",
+                    "primary": "#00444b",
+                    "on-primary-fixed": "#001f24",
+                    "primary-fixed-dim": "#8cd2dd",
+                    "on-primary-container": "#8ed3df",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#d3e4fe",
+                    "surface-container-highest": "#d3e4fe",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-tertiary-container": "#b8c9e0",
+                    "on-secondary-fixed": "#002114"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "touch_target_min": "48px",
+                    "margin_desktop": "64px",
+                    "stack_md": "24px",
+                    "gutter": "24px",
+                    "margin_mobile": "16px",
+                    "base": "8px",
+                    "stack_sm": "12px",
+                    "stack_lg": "40px"
+            },
+            "fontFamily": {
+                    "h2": ["Manrope"],
+                    "body-md": ["Public Sans"],
+                    "label-caps": ["Public Sans"],
+                    "h1": ["Manrope"],
+                    "body-lg": ["Public Sans"],
+                    "h3": ["Manrope"]
+            },
+            "fontSize": {
+                    "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanner-viewfinder {
+            background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<header class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] fixed top-0 w-full z-50 flex justify-between items-center px-4 py-3">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-150" onclick="window.location.href='./home.html'">
+<span class="material-symbols-outlined text-[#005D67]" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-manrope text-lg font-bold tracking-tight text-[#005D67]">Scan Prescription</h1>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-full border border-slate-200 dark:border-slate-700">
+<button class="px-3 py-1 rounded-full text-[11px] font-bold transition-all bg-white dark:bg-slate-700 text-[#005D67] shadow-sm">EN</button>
+<button class="px-3 py-1 rounded-full text-[11px] font-bold transition-all text-slate-500 hover:text-slate-700">KN</button>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-500" data-icon="help">help</span>
+</button>
+</div>
+</header>
+<main class="flex-1 mt-20 px-4 pb-24 max-w-lg mx-auto w-full flex flex-col">
+<section class="py-6 text-center">
+<h2 class="font-h3 text-h3 text-primary mb-2">Scan your prescription</h2>
+<p class="font-body-md text-on-surface-variant">ನಿಮ್ಮ ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ</p>
+</section>
+<section class="flex-1 relative flex flex-col items-center justify-center min-h-[400px]">
+<div class="w-full aspect-[3/4] relative rounded-[32px] overflow-hidden border-4 border-dashed border-primary/20 bg-surface-container/30 flex items-center justify-center scanner-viewfinder">
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<img alt="Blurred background of a medical setting" class="w-full h-full object-cover opacity-20 grayscale" data-alt="Softly blurred clinical background with medical desk and stethoscope in a bright hospital room with natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjtV7IAIKEViq-W0nJxnneKCrZwbdZuSdmYRbxWZXsfJbBMvKlVcFLuT0sUD8sVppPfKD3-rdmQD2sN1Wujdyzk9dQyG-9EuJIoARJ-IlmOOzRwMRjDeOdoFl8JB2JxZB3zf_WTbPrKR8AgAXTw5nQUKxwiwL39fBsbiL3YQiTIx9EzugjfgHpI7dGKTwDNd9wWcgz4saNMWVFoSYcPjhCICuL4-lFU1IU5RenUDAZkOfNmsEbSTMSAESDkXoVbO_gjWpJd8xdk28"/>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-4">
+<div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center backdrop-blur-sm border border-primary/20">
+<span class="material-symbols-outlined text-primary text-5xl" data-icon="photo_camera">photo_camera</span>
+</div>
+<div class="bg-primary/90 text-white px-6 py-2 rounded-full font-label-caps text-xs tracking-widest uppercase">
+                        Center Document
+                    </div>
+</div>
+<div class="absolute top-8 left-8 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-xl"></div>
+<div class="absolute top-8 right-8 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-xl"></div>
+<div class="absolute bottom-8 left-8 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-xl"></div>
+<div class="absolute bottom-8 right-8 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-xl"></div>
+</div>
+<div class="mt-8 text-center">
+<p class="font-body-md text-on-surface mb-6">Tap the button below to capture</p>
+<button class="group flex flex-col items-center gap-3" id="capture-button" type="button">
+<div class="w-20 h-20 rounded-full border-4 border-primary p-1 flex items-center justify-center transition-transform active:scale-90 duration-150">
+<div class="w-full h-full rounded-full bg-primary flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="shutter_speed">shutter_speed</span>
+</div>
+</div>
+<span class="font-label-caps text-primary">Tap to scan</span>
+</button>
+<p class="text-sm text-on-surface-variant mt-2 hidden" id="scan-status"></p>
+</div>
+</section>
+<section class="mt-8 grid grid-cols-2 gap-4">
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 active:bg-slate-50 transition-colors cursor-pointer" id="upload-gallery">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="image">image</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-slate-500 uppercase tracking-wider">Gallery</span>
+<span class="font-manrope text-sm font-bold text-on-surface">Upload</span>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 active:bg-slate-50 transition-colors">
+<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="flashlight_on">flashlight_on</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-slate-500 uppercase tracking-wider">Lighting</span>
+<span class="font-manrope text-sm font-bold text-on-surface">Flash Off</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Results View (hidden by default) -->
+<div id="results-view" class="hidden fixed inset-0 z-40 bg-background overflow-y-auto pb-20">
+<div class="max-w-lg mx-auto px-4 py-6 pb-28">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="font-h2 text-h2 text-primary">Result</h2>
+    <a href="./home.html" class="px-5 py-2 bg-[#005D67] text-white rounded-lg font-manrope font-semibold text-sm hover:opacity-90 transition-all">Home</a>
+  </div>
+  <div class="mb-6">
+    <h3 class="font-h3 text-h3 text-on-surface mb-3">Prescription Details</h3>
+    <div id="rx-medicines" class="space-y-3"></div>
+  </div>
+  <div class="mb-6">
+    <div class="bg-slate-100 border border-slate-200 rounded-xl p-5">
+      <h4 class="font-manrope font-bold text-on-surface mb-3">Kannada Explanation</h4>
+      <p id="rx-kannada" class="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap"></p>
+      <div id="rx-audio-path" class="hidden mt-4 bg-green-50 border border-green-200 rounded-lg p-3 text-xs text-green-800 break-all"></div>
+    </div>
+  </div>
+  <div id="rx-audio-section" class="hidden mb-6">
+    <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h4 class="font-manrope font-bold text-on-surface mb-3">Kannada Audio</h4>
+      <button id="rx-continue-btn" class="mb-4 px-5 py-2 bg-[#005D67] text-white rounded-lg font-manrope font-semibold text-sm hover:opacity-90 transition-all">Continue</button>
+      <audio id="rx-audio-player" controls class="w-full"></audio>
+    </div>
+  </div>
+  <button id="rx-scan-again" class="w-full py-3 bg-primary text-white font-manrope font-bold rounded-xl hover:opacity-90 transition-all">Scan Another Prescription</button>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-t-2xl border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_24px_-10px_rgba(0,0,0,0.08)] z-50">
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67] transition-colors">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-manrope text-[11px] font-semibold mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67] transition-colors">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-manrope text-[11px] font-semibold mt-1">Support</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#005D67]/10 dark:bg-teal-900/30 text-[#005D67] dark:text-teal-300 rounded-xl px-5 py-1.5">
+<span class="material-symbols-outlined" data-icon="contact_support" data-weight="fill" style="font-variation-settings: 'FILL' 1;">contact_support</span>
+<span class="font-manrope text-[11px] font-semibold mt-1">Health</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#005D67] transition-colors">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-manrope text-[11px] font-semibold mt-1">Profile</span>
+</div>
+</nav>
+<div class="fixed top-24 right-4 z-40 flex flex-col gap-3">
+<div class="bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow-lg border border-primary/10 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<span class="font-label-caps text-[10px] text-on-surface">Good Lighting</span>
+</div>
+</div>
+<input accept="image/*" class="hidden" id="scan-file-input" type="file"/>
+<script>
+  const API_BASE = 'http://127.0.0.1:5000';
+  const fileInput = document.getElementById('scan-file-input');
+  const captureButton = document.getElementById('capture-button');
+  const uploadGallery = document.getElementById('upload-gallery');
+  const statusEl = document.getElementById('scan-status');
+
+  const sessionRaw = localStorage.getItem('ashaSession');
+  let ashaSession = null;
+  try {
+    ashaSession = sessionRaw ? JSON.parse(sessionRaw) : null;
+  } catch (_error) {
+    ashaSession = null;
+  }
+
+  function setStatus(message, isError) {
+    statusEl.classList.remove('hidden');
+    statusEl.classList.remove('text-error');
+    statusEl.classList.remove('text-secondary');
+    statusEl.classList.add(isError ? 'text-error' : 'text-secondary');
+    statusEl.textContent = message;
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const value = String(reader.result || '');
+        const parts = value.split(',');
+        resolve(parts.length > 1 ? parts[1] : parts[0]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const isAshaFlow = ashaSession && ashaSession.nhm_id;
+
+  async function uploadPrescription(file) {
+    setStatus('Scanning prescription...', false);
+
+    try {
+      const base64 = await fileToBase64(file);
+      let endpoint, body;
+
+      if (isAshaFlow) {
+        const phone = localStorage.getItem('currentPatientPhone') || '';
+        if (phone.length !== 10) {
+          setStatus('Please set a patient phone number in ASHA dashboard first.', true);
+          return;
+        }
+        endpoint = API_BASE + '/asha/workflows/prescription-scan';
+        body = JSON.stringify({
+          nhm_id: ashaSession.nhm_id,
+          patient_phone: phone,
+          image: base64
+        });
+      } else {
+        endpoint = API_BASE + '/read-prescription';
+        body = JSON.stringify({ image: base64 });
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body
+      });
+      const json = await response.json();
+      if (!response.ok || !json.success) {
+        throw new Error(json.error || 'Prescription scan failed');
+      }
+
+      localStorage.setItem('latestPrescription', JSON.stringify(json));
+
+      if (isAshaFlow) {
+        setStatus('Prescription processed successfully. Returning to dashboard...', false);
+        window.setTimeout(() => {
+          window.location.href = './asha_worker.html';
+        }, 600);
+      } else {
+        showResults(json);
+      }
+    } catch (error) {
+      setStatus(error.message || 'Unable to process prescription.', true);
+    }
+  }
+
+  function showResults(data) {
+    const resultsView = document.getElementById('results-view');
+    const medicinesEl = document.getElementById('rx-medicines');
+    const kannadaEl = document.getElementById('rx-kannada');
+    const audioPathEl = document.getElementById('rx-audio-path');
+    const audioSection = document.getElementById('rx-audio-section');
+    const audioPlayer = document.getElementById('rx-audio-player');
+
+    // Prescription medicines
+    const rx = data.prescription || {};
+    const meds = rx.medicines || rx.medications || [];
+    if (meds.length === 0) {
+      medicinesEl.innerHTML = '<p class="text-on-surface-variant text-sm">No medicines were detected in this prescription.</p>';
+    } else {
+      medicinesEl.innerHTML = meds.map(function(m) {
+        const name = m.name || m.medicine_name || 'Unknown';
+        const dose = m.dosage || m.dose || '';
+        const freq = m.frequency || '';
+        const dur = m.duration || '';
+        return '<div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">' +
+          '<p class="font-manrope font-bold text-on-surface">' + name + '</p>' +
+          (dose ? '<p class="text-sm text-on-surface-variant">Dosage: ' + dose + '</p>' : '') +
+          (freq ? '<p class="text-sm text-on-surface-variant">Frequency: ' + freq + '</p>' : '') +
+          (dur ? '<p class="text-sm text-on-surface-variant">Duration: ' + dur + '</p>' : '') +
+          '</div>';
+      }).join('');
+    }
+
+    // Kannada explanation
+    kannadaEl.textContent = data.kannada_explanation || 'No explanation available.';
+
+    // Audio path
+    if (data.kannada_explanation_audio_path) {
+      audioPathEl.classList.remove('hidden');
+      audioPathEl.textContent = 'Audio saved at: ' + data.kannada_explanation_audio_path;
+    }
+
+    // Audio player
+    if (data.kannada_explanation_audio) {
+      audioSection.classList.remove('hidden');
+      audioPlayer.src = 'data:audio/mp3;base64,' + data.kannada_explanation_audio;
+    }
+
+    resultsView.classList.remove('hidden');
+  }
+
+  // Button handlers
+  document.getElementById('rx-scan-again').addEventListener('click', function() {
+    document.getElementById('results-view').classList.add('hidden');
+    fileInput.value = '';
+    statusEl.classList.add('hidden');
+  });
+
+  document.getElementById('rx-continue-btn').addEventListener('click', function() {
+    var player = document.getElementById('rx-audio-player');
+    if (player.paused) { player.play(); } else { player.pause(); }
+  });
+
+  captureButton.addEventListener('click', () => {
+    fileInput.click();
+  });
+  uploadGallery.addEventListener('click', () => {
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) {
+      return;
+    }
+    uploadPrescription(file);
+  });
+</script>
+</body></html>

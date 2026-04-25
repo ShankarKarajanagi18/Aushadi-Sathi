@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MedVerify - AushadhiSaathi Result</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Public+Sans:wght@400;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed": "#002114",
+                        "surface": "#f8f9ff",
+                        "outline": "#6f797a",
+                        "inverse-surface": "#213145",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-dim": "#cbdbf5",
+                        "secondary-fixed": "#7afac3",
+                        "on-tertiary-container": "#b8c9e0",
+                        "background": "#f8f9ff",
+                        "surface-tint": "#186872",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#8ed3df",
+                        "on-tertiary-fixed": "#0a1d2d",
+                        "surface-container": "#e5eeff",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "secondary-container": "#7afac3",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#a8eefa",
+                        "inverse-primary": "#8cd2dd",
+                        "tertiary-fixed-dim": "#b6c8df",
+                        "secondary": "#006c4b",
+                        "tertiary": "#2d3e50",
+                        "tertiary-container": "#445568",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#dce9ff",
+                        "primary-container": "#005d67",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed-dim": "#5bdda8",
+                        "on-surface-variant": "#3f484a",
+                        "on-primary-fixed-variant": "#004f57",
+                        "surface-variant": "#d3e4fe",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#007350",
+                        "on-primary-fixed": "#001f24",
+                        "on-primary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "primary": "#00444b",
+                        "on-secondary-fixed-variant": "#005138",
+                        "tertiary-fixed": "#d2e4fb",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#37485b",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#8cd2dd",
+                        "outline-variant": "#bec8ca"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin_desktop": "64px",
+                        "touch_target_min": "48px",
+                        "stack_sm": "12px",
+                        "margin_mobile": "16px",
+                        "stack_lg": "40px",
+                        "stack_md": "24px",
+                        "base": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Public Sans"],
+                        "h1": ["Manrope"],
+                        "body-md": ["Public Sans"],
+                        "body-lg": ["Public Sans"],
+                        "h2": ["Manrope"],
+                        "h3": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "h1": ["40px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "h2": ["32px", {"lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h3": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .bento-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 16px 32px -12px rgba(24, 104, 114, 0.08);
+            transition: transform 0.2s ease;
+        }
+        .haptic-button {
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body-md text-on-background">
+<!-- Top Navigation Header -->
+<header class="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900 shadow-sm sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-6 h-16 max-w-screen-2xl mx-auto font-manrope antialiased tracking-tight">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-teal-800">menu</span>
+</button>
+<h1 class="text-xl font-extrabold text-teal-800">MedVerify</h1>
+</div>
+<div class="flex items-center gap-3">
+<span class="hidden md:block font-semibold text-teal-800">User Profile</span>
+<div class="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+<img alt="Profile" data-alt="close-up portrait of a professional healthcare provider in a white coat with a friendly smile and clean studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxfOu8PGw0jEwI0U0NlrbYL1CfjjbSK5Yv-zk4sHMG_ZKczgOuIcRUr-3lCyWoPjdeJlqvRpei3FRuTcVbDR7oFimNwxQgR5hGugdtUnIy2J7L51OmvmsCOofFvDf4YYxvwjT6EfYI4KwYl79n4FOVgkAIZBiglNvrGr5YUeb1SsnJ705YyiK-0t7CerFs_F_dcvyGafCNbBFix3cOC6j9tjHrAo_PKdFEG0KNNkxpr3LwvUmGo01XLla_TdSGisLXLDTa7czSqt8"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-6 py-10 pb-32">
+<!-- Result Header -->
+<div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+<div class="space-y-1">
+<h2 class="font-h2 text-h2 text-primary">Medicine Verification</h2>
+<p class="text-outline font-body-md" id="scan-time">Waiting for verification data</p>
+</div>
+<div class="flex items-center gap-3 bg-secondary/10 px-6 py-3 rounded-full border border-secondary/20">
+<span class="material-symbols-outlined text-secondary text-[32px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-secondary font-bold text-h3 tracking-widest" id="verification-status">SAFE</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Medicine Visual/Primary Card -->
+<div class="md:col-span-1 bento-card p-6 flex flex-col justify-between border border-primary-container/10">
+<div>
+<span class="font-label-caps text-label-caps text-primary uppercase mb-4 block">Product View</span>
+<div class="aspect-square rounded-xl bg-surface-container-low flex items-center justify-center overflow-hidden mb-6 relative">
+<img alt="Paracetamol 500mg" class="object-cover w-full h-full" data-alt="Macro photography of professional pharmaceutical medicine tablets in white packaging against a clean clinical white background with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYsTNn_MdF1v6SN1dE4LYZHkXZG3S0dwrAcB4eA_ACZ-y9ismxP5Lq8d5vN606oqLts1NtVH-qVJ8DU81TxEJMOWZhnB0QL-1gEjnmPL-dHczC9KadKTp24WN8Qy9JQtzJ3fzSKV9BezVITlyvzCdcW2ThH8S47MqauAEJqbmsVFj3MbSXeN1mPHUqv77yB1WgQhqgj6WMbEwZj5WtkPcCA8DNKBj4fhiMSo49wJPgl0hsGKkD5Pv5mDtbkw1v4B6f4K8SDP1sbjE"/>
+<div class="absolute bottom-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-primary border border-primary/10">SAMPLE IMAGE</div>
+</div>
+<div class="space-y-1">
+<h3 class="font-h3 text-h3 text-on-background" id="drug-name">Medicine Name</h3>
+<p class="text-primary font-semibold" id="manufacturer">Manufacturer</p>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-100">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-sm">payments</span>
+<span class="font-h3 text-h3" id="price">N/A</span>
+</div>
+</div>
+</div>
+<!-- Detailed Specifications Card -->
+<div class="md:col-span-2 bento-card p-8 border border-primary-container/5">
+<span class="font-label-caps text-label-caps text-primary uppercase mb-6 block">Medicine Details</span>
+<div class="grid grid-cols-2 gap-y-8 gap-x-12">
+<div class="space-y-1">
+<p class="text-sm font-semibold text-outline">Batch Number</p>
+<p class="font-h3 text-on-background tracking-tight" id="batch-number">N/A</p>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-semibold text-outline">Expiry Date</p>
+<p class="font-h3 text-on-background text-error" id="expiry-date">N/A</p>
+</div>
+<div class="col-span-2 space-y-1">
+<p class="text-sm font-semibold text-outline">Composition</p>
+<p class="font-body-lg text-on-background leading-snug" id="composition">No composition data</p>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-semibold text-outline">Security Hologram</p>
+<div class="flex items-center gap-2 text-secondary" id="hologram-status">
+<span class="material-symbols-outlined">shutter_speed</span>
+<p class="font-semibold">Unknown</p>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-sm font-semibold text-outline">Verification ID</p>
+<p class="font-body-md text-on-surface-variant font-mono" id="verification-id">Pending</p>
+</div>
+</div>
+</div>
+<!-- Safety Checklist Section -->
+<div class="md:col-span-3 bento-card overflow-hidden border border-primary-container/5">
+<div class="px-8 py-6 bg-teal-50/30 flex justify-between items-center border-b border-teal-100">
+<span class="font-label-caps text-label-caps text-teal-800 uppercase">Safety Protocol Checks</span>
+<span class="text-xs font-bold text-teal-600 bg-white px-2 py-1 rounded border border-teal-200">4/4 VERIFIED</span>
+</div>
+<div class="p-4">
+<table class="w-full text-left">
+<thead>
+<tr class="text-outline text-xs uppercase tracking-widest border-b border-slate-50">
+<th class="px-4 py-3 font-bold">Checkpoint</th>
+<th class="px-4 py-3 font-bold text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50" id="checkpoints-table">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
+<span class="material-symbols-outlined">numbers</span>
+</div>
+<div>
+<p class="font-semibold text-on-background">Batch Number</p>
+<p class="text-xs text-outline">Cross-referenced with manufacturer database</p>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary font-bold px-3 py-1.5 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> PASS
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
+<span class="material-symbols-outlined">event_available</span>
+</div>
+<div>
+<p class="font-semibold text-on-background">Expiry Date</p>
+<p class="text-xs text-outline">Checking date validity against current time</p>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary font-bold px-3 py-1.5 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> PASS
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
+<span class="material-symbols-outlined">factory</span>
+</div>
+<div>
+<p class="font-semibold text-on-background">Manufacturer</p>
+<p class="text-xs text-outline">GSK India - Registered Pharmacy Entity</p>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary font-bold px-3 py-1.5 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> PASS
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-4 py-5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center text-teal-700">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+</div>
+<div>
+<p class="font-semibold text-on-background">Security Hologram</p>
+<p class="text-xs text-outline">Reflective pattern matching AI model</p>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary font-bold px-3 py-1.5 rounded-full text-xs">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span> PASS
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Footer Actions Stack -->
+<div class="mt-12 space-y-4">
+<button class="w-full bg-[#FF7D29] hover:bg-[#E66A1F] text-white font-h3 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all haptic-button" id="hear-verdict-button" type="button">
+<span class="material-symbols-outlined text-2xl">volume_up</span>
+<span>Hear Verdict / ವೆರಡಿಕ್ಟ್ ಕೇಳಿ</span>
+</button>
+<button class="w-full bg-white hover:bg-slate-50 text-primary border-2 border-primary-container/20 font-h3 py-5 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all" id="new-scan-button" type="button">
+<span class="material-symbols-outlined text-2xl">add_a_photo</span>
+<span>New Scan / ಹೊಸ ಸ್ಕ್ಯಾನ್</span>
+</button>
+</div>
+</main>
+<!-- Navigation Shell - Bottom Bar for Results Screen -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-white/90 dark:bg-slate-950/90 backdrop-blur-lg border-t border-slate-100 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-1.5 hover:text-teal-700 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-teal-800 bg-teal-50/50 rounded-xl px-4 py-1.5 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">document_scanner</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-1.5 hover:text-teal-700 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 px-4 py-1.5 hover:text-teal-700 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-manrope text-[11px] font-semibold uppercase tracking-wider">Settings</span>
+</a>
+</nav>
+<p class="text-sm text-center text-on-surface-variant pb-24" id="verify-status"></p>
+<input accept="image/*" class="hidden" id="verify-file-input" type="file"/>
+<script>
+    const API_BASE = 'http://127.0.0.1:5000';
+    const verifyStatus = document.getElementById('verify-status');
+    const fileInput = document.getElementById('verify-file-input');
+    const newScanButton = document.getElementById('new-scan-button');
+
+    function setStatus(message, isError) {
+        verifyStatus.classList.remove('text-error');
+        verifyStatus.classList.remove('text-secondary');
+        verifyStatus.classList.add(isError ? 'text-error' : 'text-secondary');
+        verifyStatus.textContent = message;
+    }
+
+    const sessionRaw = localStorage.getItem('ashaSession');
+    let ashaSession = null;
+    try {
+        ashaSession = sessionRaw ? JSON.parse(sessionRaw) : null;
+    } catch (_error) {
+        ashaSession = null;
+    }
+
+    if (!ashaSession || !ashaSession.nhm_id) {
+        window.location.href = './asha_login.html';
+    }
+
+    function updateVerificationView(record) {
+        const scan = (record && record.scan_result) || {};
+        const verdict = (record && record.verdict) || {};
+
+        document.getElementById('scan-time').textContent = 'Last sync: ' + new Date().toLocaleString();
+        document.getElementById('drug-name').textContent = scan.drug_name || 'Unknown medicine';
+        document.getElementById('manufacturer').textContent = scan.manufacturer || 'Manufacturer unavailable';
+        document.getElementById('price').textContent = scan.price ? String(scan.price) : 'N/A';
+        document.getElementById('batch-number').textContent = scan.batch_number || 'N/A';
+        document.getElementById('expiry-date').textContent = scan.expiry_date || 'N/A';
+        document.getElementById('composition').textContent = scan.composition || 'No composition extracted';
+        document.getElementById('verification-id').textContent = record.id || 'Pending';
+
+        const statusEl = document.getElementById('verification-status');
+        const status = verdict.status || 'UNKNOWN';
+        statusEl.textContent = status;
+        statusEl.classList.remove('text-secondary', 'text-yellow-700', 'text-error');
+        if (status === 'GREEN') {
+            statusEl.classList.add('text-secondary');
+        } else if (status === 'YELLOW') {
+            statusEl.classList.add('text-yellow-700');
+        } else {
+            statusEl.classList.add('text-error');
+        }
+
+        const holoContainer = document.getElementById('hologram-status');
+        const hologramPresent = scan.hologram_present;
+        holoContainer.innerHTML = '<span class="material-symbols-outlined">shutter_speed</span><p class="font-semibold">' + (hologramPresent ? 'Present' : 'Not found') + '</p>';
+
+        const tableBody = document.getElementById('checkpoints-table');
+        const checkpoints = [
+            { label: 'Batch Number', value: scan.batch_number ? 'PASS' : 'CHECK', detail: scan.batch_number || 'Batch not extracted' },
+            { label: 'Expiry Date', value: scan.expiry_date ? 'PASS' : 'CHECK', detail: scan.expiry_date || 'Expiry not extracted' },
+            { label: 'Manufacturer', value: scan.manufacturer ? 'PASS' : 'CHECK', detail: scan.manufacturer || 'Manufacturer not extracted' },
+            { label: 'Overall Verdict', value: status, detail: verdict.reason || 'No verdict reason available' }
+        ];
+
+        tableBody.innerHTML = checkpoints.map((row) => {
+            const ok = row.value === 'PASS' || row.value === 'GREEN';
+            return '<tr class="hover:bg-slate-50 transition-colors">'
+                + '<td class="px-4 py-5"><p class="font-semibold text-on-background">' + row.label + '</p><p class="text-xs text-outline">' + row.detail + '</p></td>'
+                + '<td class="px-4 py-5 text-right"><span class="inline-flex items-center gap-1.5 ' + (ok ? 'bg-secondary/10 text-secondary' : 'bg-error-container text-error') + ' font-bold px-3 py-1.5 rounded-full text-xs">' + row.value + '</span></td>'
+                + '</tr>';
+        }).join('');
+    }
+
+    async function fetchLatestVerification() {
+        const phone = localStorage.getItem('currentPatientPhone') || '';
+        const historyUrl = API_BASE + '/asha/workflows/history?nhm_id=' + encodeURIComponent(ashaSession.nhm_id)
+            + (phone.length === 10 ? '&patient_phone=' + encodeURIComponent(phone) : '')
+            + '&limit=1';
+        const response = await fetch(historyUrl);
+        const json = await response.json();
+        if (!response.ok || !json.success) {
+            throw new Error(json.error || 'Failed to load verification history');
+        }
+        const items = (json.history && json.history.verifications) || [];
+        if (!items.length) {
+            setStatus('No verification data found yet. Upload a medicine photo to verify.', false);
+            return;
+        }
+        updateVerificationView(items[0]);
+        localStorage.setItem('latestVerification', JSON.stringify(items[0]));
+        setStatus('Verification data loaded from Firebase.', false);
+    }
+
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const value = String(reader.result || '');
+                resolve(value.split(',')[1] || '');
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function uploadAndVerify(file) {
+        const phone = localStorage.getItem('currentPatientPhone') || '';
+        if (phone.length !== 10) {
+            setStatus('Set a patient phone number in dashboard before verification.', true);
+            return;
+        }
+
+        setStatus('Verifying medicine and storing result...', false);
+        const image = await fileToBase64(file);
+        const response = await fetch(API_BASE + '/asha/workflows/medicine-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nhm_id: ashaSession.nhm_id, patient_phone: phone, image: image })
+        });
+        const json = await response.json();
+        if (!response.ok || !json.success) {
+            throw new Error(json.error || 'Verification failed');
+        }
+
+        const record = { id: 'latest', scan_result: json.scan_result, verdict: json.verdict };
+        updateVerificationView(record);
+        localStorage.setItem('latestVerification', JSON.stringify(record));
+        setStatus('Medicine verification completed and synced.', false);
+    }
+
+    document.getElementById('hear-verdict-button').addEventListener('click', async () => {
+        const text = 'Verification status is ' + document.getElementById('verification-status').textContent + '. ' + document.getElementById('composition').textContent;
+        try {
+            await fetch(API_BASE + '/speak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            setStatus('Audio generation triggered. Check backend audio folder.', false);
+        } catch (_error) {
+            setStatus('Unable to trigger verdict audio.', true);
+        }
+    });
+
+    newScanButton.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+            return;
+        }
+        try {
+            await uploadAndVerify(file);
+        } catch (error) {
+            setStatus(error.message || 'Verification failed.', true);
+        }
+    });
+
+    fetchLatestVerification().catch((error) => {
+        setStatus(error.message || 'Unable to fetch latest verification.', true);
+    });
+</script>
+</body></html>
