@@ -59,7 +59,7 @@ def _elevenlabs_tts(text):
 
     payload = {
         "text": _sanitize_text(text),
-        "model_id": "eleven_turbo_v2_5",  # supports multilingual including Kannada
+        "model_id": "eleven_multilingual_v2",  # supports multilingual including Indian languages
         "voice_settings": {
             "stability": 0.5,
             "similarity_boost": 0.75

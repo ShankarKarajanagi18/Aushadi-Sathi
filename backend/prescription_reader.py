@@ -9,17 +9,17 @@ from config import OPENROUTER_API_KEY
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_CANDIDATES = [
+  "google/gemini-2.5-flash-image",
+  "google/gemini-2.5-flash",
+  "google/gemini-2.5-pro",
   "baidu/qianfan-ocr-fast:free",
   "nvidia/nemotron-nano-12b-v2-vl:free",
   "qwen/qwen2.5-vl-72b-instruct:free",
   "qwen/qwen2.5-vl-72b-instruct",
-  "google/gemini-2.5-flash-image",
-  "google/gemini-2.5-flash",
-  "google/gemini-2.5-pro",
   "openai/gpt-4o-mini",
   "meta-llama/llama-3.2-11b-vision-instruct",
 ]
-RETRY_DELAYS_SECONDS = [2, 4, 8]
+RETRY_DELAYS_SECONDS = [2]
 
 
 def _resolve_image_path(image_path):
@@ -250,10 +250,9 @@ def _normalize_prescription_json(raw_json):
     if not isinstance(med, dict):
       continue
     dose = str(med.get("dose", "")).strip()
-    # Do not keep bare numeric defaults like "1" that often come from weak OCR guesses.
-    if dose in {"1", "1.", "1 tab", "1 tabs"}:
-      med["dose"] = ""
-    elif dose.lower() in {"2", "2.", "2 tab", "2 tabs", "2 tablet"}:
+    if dose.lower() in {"1"}:
+      med["dose"] = "1 tablet"
+    elif dose.lower() in {"2"}:
       med["dose"] = "2 tablets"
 
   return json.dumps(data, ensure_ascii=False)

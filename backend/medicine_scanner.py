@@ -10,13 +10,17 @@ VERBOSE = False  # Set to True for debug output
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_CANDIDATES = [
-    "google/gemini-2.5-flash-image",
-    "google/gemini-2.5-flash",
-    "openai/gpt-4o-mini",
-    "qwen/qwen2.5-vl-72b-instruct",
-    "meta-llama/llama-3.2-11b-vision-instruct",
+  "google/gemini-2.5-flash-image",
+  "google/gemini-2.5-flash",
+  "google/gemini-2.5-pro",
+  "baidu/qianfan-ocr-fast:free",
+  "nvidia/nemotron-nano-12b-v2-vl:free",
+  "qwen/qwen2.5-vl-72b-instruct:free",
+  "qwen/qwen2.5-vl-72b-instruct",
+  "openai/gpt-4o-mini",
+  "meta-llama/llama-3.2-11b-vision-instruct",
 ]
-RETRY_DELAYS_SECONDS = [3, 6, 12, 20]
+RETRY_DELAYS_SECONDS = [3]
 
 
 def _log(msg):
@@ -164,6 +168,11 @@ def _generate_with_resilience(prompt, image_bytes, mime_type):
                     _log(f"Model {model_name} not found (404), skipping.")
                     break
 
+                # Paid model / billing issue — skip to next model (don't raise)
+                if status_code == 402:
+                    _log(f"Model {model_name} requires payment (402), skipping to next model.")
+                    break
+
                 # Daily quota fully exhausted — no point retrying this model
                 if status_code == 429 and _is_quota_exhausted(error):
                     _log(f"Daily quota exhausted for {model_name}, skipping to next model.")
@@ -237,16 +246,23 @@ def scan_medicine_label(image_path):
     Return ONLY this JSON, nothing else, no markdown:
     {
       "drug_name": "name of the medicine",
+      "composition": "active ingredients. If the composition is not clearly visible in the image, infer it based on the recognized drug_name of the tablet.",
       "batch_number": "batch or lot number — usually starts with letters like BN, Batch No, B.No",
       "expiry_date": "expiry date in MM/YYYY format",
       "manufacturer": "name of manufacturing company",
-      "hologram_present": true or false
+      "hologram_present": true or false,
+      "purpose": "What this medicine is typically used for (1 short sentence)",
+      "when_to_take": "General guidance on when to take this medicine (e.g. after food, empty stomach)",
+      "side_effects": "Common side effects to watch out for",
+      "kannada_purpose": "Same purpose translated to Kannada",
+      "kannada_when_to_take": "Same guidance translated to Kannada",
+      "kannada_side_effects": "Same side effects translated to Kannada"
     }
     
     For batch_number: look for text near words like "Batch", "B.No", "Lot", "Mfg Batch".
     For expiry_date: look for "Exp", "Use before", "Expiry".
     For hologram: look for any shiny sticker or security mark on the packaging.
-    If you cannot find a field, use empty string "".
+    If you cannot find a field, use empty string "". Provide accurate medical information for the usage details based on the drug name.
     Return only valid JSON.
     """
     

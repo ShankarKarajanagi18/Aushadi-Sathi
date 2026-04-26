@@ -1,18 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 export default function useAshaSession() {
-  const [session, setSession] = useState(null);
-
-  useEffect(() => {
+  const [session, setSession] = useState(() => {
     try {
       const raw = localStorage.getItem('ashaSession');
-      if (raw) {
-        setSession(JSON.parse(raw));
-      }
+      return raw ? JSON.parse(raw) : null;
     } catch (_error) {
       localStorage.removeItem('ashaSession');
+      return null;
     }
-  }, []);
+  });
 
   const saveSession = useCallback((worker) => {
     localStorage.setItem('ashaSession', JSON.stringify(worker));

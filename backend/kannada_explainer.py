@@ -58,14 +58,31 @@ def _translate_medical_text_to_kannada(text):
     (r"\busg\b", "ಅಲ್ಟ್ರಾಸೌಂಡ್ ಪರೀಕ್ಷೆ"),
     (r"\bdm\b", "ಮಧುಮೇಹ"),
     (r"\bhtn\b", "ರಕ್ತದೊತ್ತಡ"),
-    (r"\bno\s+vomiting\b", "ವಾಂತಿ ಇಲ್ಲ"),
-    (r"\bno\s+pain\s+abdomen\b", "ಹೊಟ್ಟೆ ನೋವು ಇಲ್ಲ"),
-    (r"\bno\s+altered\s+bowel\s+movements\b", "ಮಲವಿಸರ್ಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆ ಇಲ್ಲ"),
-    (r"\bno\s+pain\b", "ನೋವು ಇಲ್ಲ"),
+    (r"\bno\s+vomiting\b", "ವಾಂತಿ"),
+    (r"\bno\s+nausea\b", "ವಾಕರಿಕೆ"),
+    (r"\bno\s+bloating\b", "ಹೊಟ್ಟೆ ಉಬ್ಬರ"),
+    (r"\bno\s+pain\s+abdomen\b", "ಹೊಟ್ಟೆ ನೋವು"),
+    (r"\bno\s+abdomen\s+pain\b", "ಹೊಟ್ಟೆ ನೋವು"),
+    (r"\bno\s+altered\s+bowel\s+movements\b", "ಮಲವಿಸರ್ಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆ"),
+    (r"\bno\s+altered\s+bowel\s+habits\b", "ಮಲವಿಸರ್ಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆ"),
+    (r"\bno\s+fever\b", "ಜ್ವರ"),
+    (r"\bno\s+cough\b", "ಕೆಮ್ಮು"),
+    (r"\bno\s+pain\b", "ನೋವು"),
     (r"\bpain\s+abdomen\b", "ಹೊಟ್ಟೆ ನೋವು"),
+    (r"\babdomen\s+pain\b", "ಹೊಟ್ಟೆ ನೋವು"),
     (r"\baltered\s+bowel\s+movements\b", "ಮಲವಿಸರ್ಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆ"),
+    (r"\baltered\s+bowel\s+habits\b", "ಮಲವಿಸರ್ಜನೆಯಲ್ಲಿ ಬದಲಾವಣೆ"),
     (r"\bbowel\s+movements\b", "ಮಲವಿಸರ್ಜನೆ"),
+    (r"\bbowel\s+habits\b", "ಮಲವಿಸರ್ಜನೆ"),
     (r"\bvomiting\b", "ವಾಂತಿ"),
+    (r"\bnausea\b", "ವಾಕರಿಕೆ"),
+    (r"\bbloating\b", "ಹೊಟ್ಟೆ ಉಬ್ಬರ"),
+    (r"\bfever\b", "ಜ್ವರ"),
+    (r"\bcough\b", "ಕೆಮ್ಮು"),
+    (r"\bcold\b", "ಶೀತ"),
+    (r"\bheadache\b", "ತಲೆನೋವು"),
+    (r"\bweakness\b", "ಸುಸ್ತು"),
+    (r"\bfatigue\b", "ಆಯಾಸ"),
     (r"\bscan\s+report\b", "ಸ್ಕ್ಯಾನ್ ವರದಿ"),
     (r"\bscan\b", "ಸ್ಕ್ಯಾನ್"),
     (r"\babdomen\b", "ಹೊಟ್ಟೆ"),
@@ -87,7 +104,7 @@ def _translate_medical_text_to_kannada(text):
 def _normalize_duration_text(duration):
   text = str(duration or "").strip().lower()
   if not text:
-    return "ವೈದ್ಯರು ಸೂಚಿಸಿದ ಅವಧಿವರೆಗೆ"
+    return ""
 
   text = text.replace("days", "ದಿನ").replace("day", "ದಿನ")
   text = text.replace("weeks", "ವಾರ").replace("week", "ವಾರ")
@@ -98,23 +115,21 @@ def _normalize_duration_text(duration):
 def _normalize_time_text(timing):
   text = str(timing or "").strip().lower()
   if not text:
-    return "ವೈದ್ಯರು ಸೂಚಿಸಿದ ಸಮಯಕ್ಕೆ"
-  if (("morning" in text or "am" in text) and ("night" in text or "pm" in text)):
-    return "ಬೆಳಿಗ್ಗೆ ಮತ್ತು ರಾತ್ರಿ"
-  if "before" in text or "ಮೊದಲು" in text:
+    return ""
+  
+  if "before" in text or "ac" in text or "bbf" in text or "ಮೊದಲು" in text or "empty" in text:
     return "ಊಟ ಮಾಡುವುದಕ್ಕೆ ಮುಂಚೆ"
-  if "after" in text or "ನಂತರ" in text:
+  if "after" in text or "pc" in text or "af" in text or "ನಂತರ" in text:
     return "ಊಟವಾದ ನಂತರ"
   if "with food" in text or "ಆಗೇ" in text or "ಒಟ್ಟಿಗೆ" in text:
     return "ಊಟದ ಜೊತೆಗೆ"
-  if "morning" in text or "am" in text:
-    return "ಬೆಳಿಗ್ಗೆ"
-  if "night" in text or "pm" in text:
-    return "ರಾತ್ರಿ"
-  if "afternoon" in text:
-    return "ಮಧ್ಯಾಹ್ನ"
-  if "evening" in text:
-    return "ಸಂಜೆ"
+    
+  if "morning" in text or "am" in text or "ಬೆಳಿಗ್ಗೆ" in text: return "ಬೆಳಿಗ್ಗೆ"
+  if "night" in text or "pm" in text or "ರಾತ್ರಿ" in text: return "ರಾತ್ರಿ"
+  if "afternoon" in text: return "ಮಧ್ಯಾಹ್ನ"
+  if "evening" in text: return "ಸಂಜೆ"
+  if "30 m" in text or "30 min" in text: return "ಊಟಕ್ಕೆ 30 ನಿಮಿಷ ಮುಂಚೆ"
+  
   return text
 
 
@@ -126,30 +141,34 @@ def _spoken_medicine_name(name):
 def _normalize_frequency_text(frequency):
   text = str(frequency or "").strip().lower()
   if not text:
-    return "ದಿನಕ್ಕೆ ವೈದ್ಯರು ಸೂಚಿಸಿದಷ್ಟು ಬಾರಿ"
-  if text in {"1", "1.0"}:
+    return ""
+    
+  if text in {"od", "qd", "1-0-0", "0-1-0", "0-0-1"}: return "ದಿನಕ್ಕೆ ಒಂದು ಬಾರಿ"
+  if text in {"bd", "bid", "b.i.d", "1-0-1", "1-1-0"}: return "ದಿನಕ್ಕೆ ಎರಡು ಬಾರಿ"
+  if text in {"tid", "tds", "t.i.d", "1-1-1"}: return "ದಿನಕ್ಕೆ ಮೂರು ಬಾರಿ"
+  if text in {"qid", "q.i.d", "1-1-1-1"}: return "ದಿನಕ್ಕೆ ನಾಲ್ಕು ಬಾರಿ"
+  if text in {"sos", "prn", "as needed", "when required"}: return "ಅಗತ್ಯವಿದ್ದಾಗ ಮಾತ್ರ"
+  if text in {"hs", "bt"}: return "ರಾತ್ರಿ ಮಲಗುವ ಮುನ್ನ"
+  
+  if "once" in text or ("1" in text and "day" in text) or text in {"1", "1.0", "1 time", "1 times"}:
     return "ದಿನಕ್ಕೆ ಒಂದು ಬಾರಿ"
-  if text in {"2", "2.0"}:
+  if "twice" in text or ("2" in text and "day" in text) or text in {"2", "2.0", "2 time", "2 times"}:
     return "ದಿನಕ್ಕೆ ಎರಡು ಬಾರಿ"
-  if text in {"3", "3.0"}:
+  if "thrice" in text or ("3" in text and "day" in text) or text in {"3", "3.0", "3 time", "3 times"}:
     return "ದಿನಕ್ಕೆ ಮೂರು ಬಾರಿ"
-  if "once" in text or ("1" in text and "day" in text):
-    return "ದಿನಕ್ಕೆ ಒಂದು ಬಾರಿ"
-  if "twice" in text or ("2" in text and "day" in text):
-    return "ದಿನಕ್ಕೆ ಎರಡು ಬಾರಿ"
-  if "thrice" in text or ("3" in text and "day" in text):
-    return "ದಿನಕ್ಕೆ ಮೂರು ಬಾರಿ"
+    
   return text
 
 
 def _normalize_dose_text(dose):
   text = str(dose or "").strip().lower()
   if not text:
-    return "ವೈದ್ಯರು ಬರೆದ ಪ್ರಮಾಣದಲ್ಲಿ"
+    return ""
 
   text = text.replace("tablets", "ಮಾತ್ರೆಗಳು").replace("tablet", "ಮಾತ್ರೆ")
-  text = text.replace("tab", "ಮಾತ್ರೆ").replace("capsule", "ಕ್ಯಾಪ್ಸುಲ್")
-  text = text.replace("capsules", "ಕ್ಯಾಪ್ಸುಲ್")
+  text = text.replace("tabs", "ಮಾತ್ರೆಗಳು").replace("tab", "ಮಾತ್ರೆ")
+  text = text.replace("capsules", "ಕ್ಯಾಪ್ಸುಲ್ಗಳು").replace("capsule", "ಕ್ಯಾಪ್ಸುಲ್")
+  text = text.replace("ml", "ಎಂ.ಎಲ್")
   return text
 
 
@@ -250,13 +269,27 @@ def _build_spoken_kannada_explanation(prescription_json_string):
       prefix = "ಮೊದಲ ಮಾತ್ರೆ" if index == 1 else "ಎರಡನೇ ಮಾತ್ರೆ" if index == 2 else f"{index}ನೇ ಮಾತ್ರೆ"
       lines.append(f"{prefix} '{name}'. ಇದು {purpose}.")
 
-    for index, med in enumerate(medicines[:6], start=1):
       name = _spoken_medicine_name(med.get("name"))
       dose = _normalize_dose_text(med.get("dose"))
       frequency = _normalize_frequency_text(med.get("frequency"))
       timing = _normalize_time_text(med.get("timing"))
-      duration = _normalize_duration_text(_clean_value(med.get("duration"), ""))
-      lines.append(f"'{name}' ಮಾತ್ರೆ: {dose}, {frequency}, {timing} ತೆಗೆದುಕೊಳ್ಳಬೇಕು. ಇದನ್ನು {duration} ಮುಂದುವರಿಸಿ.")
+      duration = _normalize_duration_text(med.get("duration"))
+      
+      parts = []
+      if dose: parts.append(dose)
+      if frequency: parts.append(frequency)
+      if timing: parts.append(timing)
+      
+      instruction = ", ".join(parts)
+      if instruction:
+        line = f"'{name}' ಮಾತ್ರೆ: {instruction} ತೆಗೆದುಕೊಳ್ಳಬೇಕು."
+      else:
+        line = f"'{name}' ಮಾತ್ರೆ ತೆಗೆದುಕೊಳ್ಳಬೇಕು."
+        
+      if duration:
+        line += f" ಇದನ್ನು {duration} ಮುಂದುವರಿಸಿ."
+        
+      lines.append(line)
 
       medicine_note = (med.get("note") or med.get("instructions") or "").strip()
       if medicine_note:

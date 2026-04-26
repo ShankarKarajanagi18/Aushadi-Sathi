@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../api';
 import useAshaSession from '../hooks/useAshaSession';
+import { useLang } from '../i18n/LanguageContext';
+import T from '../i18n/translations';
 
 export default function AshaLoginPage() {
   const navigate = useNavigate();
   const { saveSession } = useAshaSession();
+  const { lang, toggleLang } = useLang();
+  const t = (key) => (T[key] && T[key][lang]) || T[key]?.en || key;
   const [fullName, setFullName] = useState('');
   const [nhmId, setNhmId] = useState('');
   const [phone, setPhone] = useState('');
@@ -19,7 +23,7 @@ export default function AshaLoginPage() {
     setError(''); setSuccess('');
     const payload = { full_name: fullName.trim(), nhm_id: nhmId.trim().toUpperCase(), phone: phone.trim(), village: village.trim(), language: 'EN' };
     if (!payload.full_name || !payload.nhm_id || payload.phone.replace(/\D/g, '').length !== 10) {
-      setError('Please enter full name, NHM ID, and a valid 10-digit phone number.');
+      setError(t('validationError'));
       return;
     }
     setLoading(true);
@@ -28,10 +32,10 @@ export default function AshaLoginPage() {
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error(result.error || 'Unable to login at this time.');
       saveSession(result.worker || {});
-      setSuccess('Login successful. Redirecting to dashboard...');
+      setSuccess(t('loginSuccess'));
       setTimeout(() => navigate('/asha-worker'), 500);
     } catch (err) {
-      setError(err.message || 'Unable to reach backend. Make sure Flask is running on port 5000.');
+      setError(err.message || 'Unable to reach backend.');
     } finally { setLoading(false); }
   }
 
@@ -45,6 +49,10 @@ export default function AshaLoginPage() {
             </button>
             <h1 className="font-manrope text-base md:text-lg font-bold tracking-tight text-[#005D67] dark:text-teal-400">AushadhiSaathi</h1>
           </div>
+          <button onClick={toggleLang} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg text-primary">
+            <span className="material-symbols-outlined text-sm">language</span>
+            <span className="text-xs font-bold font-manrope">{lang === 'en' ? 'EN' : 'ಕನ್ನಡ'}</span>
+          </button>
         </div>
       </header>
 
@@ -54,41 +62,40 @@ export default function AshaLoginPage() {
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary-container mb-stack_sm">
               <span className="material-symbols-outlined text-on-secondary-container text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
             </div>
-            <h2 className="font-h2 text-h2 text-primary mb-2">ASHA Worker Login</h2>
-            <h3 className="font-h3 text-h3 text-primary-container">ಆಶಾ ಕಾರ್ಯಕರ್ತರ ಲಾಗಿನ್</h3>
-            <p className="text-on-surface-variant mt-2 font-body-md">Enter your professional details to access the portal.</p>
+            <h2 className="font-h2 text-h2 text-primary mb-2">{t('ashaLogin')}</h2>
+            <p className="text-on-surface-variant mt-2 font-body-md">{t('enterDetails')}</p>
           </div>
 
           <div className="bg-surface-container-lowest rounded-xl shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] p-8 border border-outline-variant/30">
             <form className="space-y-stack_md" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Full Name / ಪೂರ್ಣ ಹೆಸರು</label>
+                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">{t('fullName')}</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">person</span>
-                  <input value={fullName} onChange={e => setFullName(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" placeholder="Enter your full name" type="text" />
+                  <input value={fullName} onChange={e => setFullName(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" placeholder={t('enterFullName')} type="text" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">NHM ID / ಎನ್.ಎಚ್.ಎಂ ಐಡಿ</label>
+                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">{t('nhmId')}</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">badge</span>
                   <input value={nhmId} onChange={e => setNhmId(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" placeholder="e.g. ASHA001" type="text" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Phone Number / ಫೋನ್ ಸಂಖ್ಯೆ</label>
+                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">{t('phoneNumber')}</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">call</span>
-                  <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" placeholder="10-digit mobile number" type="tel" />
+                  <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface" placeholder={t('phonePlaceholder')} type="tel" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">Village/Area / ಗ್ರಾಮ/ಪ್ರದೇಶ</label>
+                <label className="font-label-caps text-label-caps text-on-surface-variant block uppercase tracking-wider">{t('villageArea')}</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">location_on</span>
                   <select value={village} onChange={e => setVillage(e.target.value)} className="w-full h-[56px] pl-12 pr-4 rounded-lg border border-outline-variant focus:border-surface-tint focus:ring-1 focus:ring-surface-tint bg-white outline-none transition-all font-body-md text-on-surface appearance-none">
-                    <option disabled value="">Select your work area</option>
-                    <option value="hassan">Hassan District</option>
+                    <option disabled value="">{t('selectArea')}</option>
+                    <option value="hassan">Bangalore District</option>
                     <option value="mandya">Mandya District</option>
                     <option value="mysuru">Mysuru District</option>
                     <option value="chikkamagaluru">Chikkamagaluru</option>
@@ -99,7 +106,7 @@ export default function AshaLoginPage() {
               {error && <p className="text-sm text-error">{error}</p>}
               {success && <p className="text-sm text-secondary">{success}</p>}
               <button disabled={loading} type="submit" className={`w-full h-[56px] bg-secondary text-white font-manrope font-bold text-body-lg rounded-xl shadow-lg shadow-secondary/20 hover:bg-on-secondary-container transition-colors active:scale-95 duration-150 border-b-2 border-on-secondary-fixed-variant flex items-center justify-center gap-2 mt-stack_lg ${loading ? 'opacity-70' : ''}`}>
-                <span>Login / ಲಾಗಿನ್</span>
+                <span>{t('login')}</span>
                 <span className="material-symbols-outlined">login</span>
               </button>
             </form>
@@ -110,18 +117,18 @@ export default function AshaLoginPage() {
               <span className="material-symbols-outlined text-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
             </div>
             <div>
-              <h4 className="font-h3 text-[16px] text-primary mb-1">Demo Tip</h4>
-              <p className="text-on-surface-variant text-body-md">Demo: Use <span className="font-bold text-primary">NHM ID = ASHA001</span> to quickly test the dashboard features.</p>
+              <h4 className="font-h3 text-[16px] text-primary mb-1">{t('demoTip')}</h4>
+              <p className="text-on-surface-variant text-body-md">{t('demoTipDesc')}</p>
             </div>
           </div>
         </div>
       </main>
 
-      <nav className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-2 border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_24px_-10px_rgba(0,0,0,0.08)] z-50">
-        <button onClick={() => navigate('/')} className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors"><span className="material-symbols-outlined">home</span><span className="font-manrope text-[11px] font-semibold">Home</span></button>
-        <button className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors"><span className="material-symbols-outlined">medical_services</span><span className="font-manrope text-[11px] font-semibold">Health</span></button>
-        <button className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 transition-colors"><span className="material-symbols-outlined">contact_support</span><span className="font-manrope text-[11px] font-semibold">Support</span></button>
-        <button className="flex flex-col items-center justify-center bg-[#005D67]/10 dark:bg-teal-900/30 text-[#005D67] dark:text-teal-300 rounded-xl px-5 py-1.5"><span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person</span><span className="font-manrope text-[11px] font-semibold">Profile</span></button>
+      <nav className="md:hidden bg-white/95 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-2 border-t border-slate-100 shadow-[0_-8px_24px_-10px_rgba(0,0,0,0.08)] z-50">
+        <button onClick={() => navigate('/')} className="flex flex-col items-center justify-center text-slate-400 px-5 py-1.5"><span className="material-symbols-outlined">home</span><span className="font-manrope text-[11px] font-semibold">{t('home')}</span></button>
+        <button className="flex flex-col items-center justify-center text-slate-400 px-5 py-1.5"><span className="material-symbols-outlined">medical_services</span><span className="font-manrope text-[11px] font-semibold">{t('health')}</span></button>
+        <button className="flex flex-col items-center justify-center text-slate-400 px-5 py-1.5"><span className="material-symbols-outlined">contact_support</span><span className="font-manrope text-[11px] font-semibold">{t('support')}</span></button>
+        <button className="flex flex-col items-center justify-center bg-[#005D67]/10 text-[#005D67] rounded-xl px-5 py-1.5"><span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>person</span><span className="font-manrope text-[11px] font-semibold">{t('profile')}</span></button>
       </nav>
     </div>
   );

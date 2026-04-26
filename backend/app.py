@@ -6,17 +6,21 @@ import math
 import os
 import re
 import tempfile
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
 import firebase_admin
 from firebase_admin import credentials, firestore
+import requests
 
-from config import FIREBASE_KEY_PATH
+from config import FIREBASE_KEY_PATH, OPENROUTER_API_KEY
 from kannada_explainer import explain_in_kannada
+from english_explainer import explain_in_english
 from medicine_scanner import scan_medicine_label
 from prescription_reader import read_prescription
 from tts_kannada import text_to_kannada_speech
+from tts_english import text_to_english_speech
 from verifier import verify_medicine
 
 app = Flask(__name__)
@@ -24,8 +28,11 @@ CORS(app)
 
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_KEY_PATH)
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate(FIREBASE_KEY_PATH)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        print(f"Firebase initialization failed: {e}")
 
 db = firestore.client()
 
@@ -82,17 +89,27 @@ def _save_temp_image(image_base64):
         temp_file.close()
 
 
-def _process_prescription_image(image_base64):
+def _process_prescription_image(image_base64, language="en"):
     temp_path = _save_temp_image(image_base64)
     try:
         prescription_json = read_prescription(temp_path)
         prescription = json.loads(prescription_json)
+        
         kannada_text = explain_in_kannada(prescription_json)
+        english_text = explain_in_english(prescription_json)
+        
+        if language.lower() == "kn":
+            explanation_text = kannada_text
+        else:
+            explanation_text = english_text
 
         explanation_audio = None
         explanation_audio_error = None
         try:
-            explanation_audio = text_to_kannada_speech(kannada_text)
+            if language.lower() == "kn":
+                explanation_audio = text_to_kannada_speech(explanation_text)
+            else:
+                explanation_audio = text_to_english_speech(explanation_text)
         except Exception as audio_error:
             explanation_audio_error = str(audio_error)
 
@@ -100,32 +117,75 @@ def _process_prescription_image(image_base64):
         explanation_audio_save_error = None
         if explanation_audio:
             try:
-                explanation_audio_path = _save_audio_base64(explanation_audio, "kannada_explanation")
+                lang_prefix = "kannada" if language.lower() == "kn" else "english"
+                explanation_audio_path = _save_audio_base64(explanation_audio, f"{lang_prefix}_explanation")
             except Exception as save_error:
                 explanation_audio_save_error = str(save_error)
 
         return {
             "prescription": prescription,
+            "explanation": english_text,
             "kannada_explanation": kannada_text,
-            "kannada_explanation_audio": explanation_audio,
-            "kannada_explanation_audio_path": explanation_audio_path,
-            "kannada_explanation_audio_error": explanation_audio_error,
-            "kannada_explanation_audio_save_error": explanation_audio_save_error,
+            "explanation_audio": explanation_audio if language.lower() != "kn" else None,
+            "kannada_explanation_audio": explanation_audio if language.lower() == "kn" else None,
+            "explanation_audio_path": explanation_audio_path if language.lower() != "kn" else None,
+            "kannada_explanation_audio_path": explanation_audio_path if language.lower() == "kn" else None,
+            "explanation_audio_error": explanation_audio_error,
+            "explanation_audio_save_error": explanation_audio_save_error,
+            "language": language.lower()
         }
     finally:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
 
 
-def _process_medicine_verification(image_base64):
+def _process_medicine_verification(image_base64, language="en"):
     temp_path = _save_temp_image(image_base64)
     try:
         scan_json_string = scan_medicine_label(temp_path)
         scan_result = json.loads(scan_json_string)
         verdict = verify_medicine(scan_result)
+
+        kannada_text = verdict.get('kannada', '')
+        english_text = verdict.get('english', '')
+
+        if language.lower() == "kn":
+            explanation_text = kannada_text
+        else:
+            explanation_text = english_text
+        
+        explanation_audio = None
+        explanation_audio_error = None
+        if explanation_text:
+            try:
+                if language.lower() == "kn":
+                    explanation_audio = text_to_kannada_speech(explanation_text)
+                else:
+                    explanation_audio = text_to_english_speech(explanation_text)
+            except Exception as audio_error:
+                explanation_audio_error = str(audio_error)
+
+        explanation_audio_path = None
+        explanation_audio_save_error = None
+        if explanation_audio:
+            try:
+                lang_prefix = "kannada" if language.lower() == "kn" else "english"
+                explanation_audio_path = _save_audio_base64(explanation_audio, f"{lang_prefix}_med_explanation")
+            except Exception as save_error:
+                explanation_audio_save_error = str(save_error)
+
         return {
             "scan_result": scan_result,
             "verdict": verdict,
+            "explanation": english_text,
+            "kannada_explanation": kannada_text,
+            "explanation_audio": explanation_audio if language.lower() != "kn" else None,
+            "kannada_explanation_audio": explanation_audio if language.lower() == "kn" else None,
+            "explanation_audio_path": explanation_audio_path if language.lower() != "kn" else None,
+            "kannada_explanation_audio_path": explanation_audio_path if language.lower() == "kn" else None,
+            "explanation_audio_error": explanation_audio_error,
+            "explanation_audio_save_error": explanation_audio_save_error,
+            "language": language.lower()
         }
     finally:
         if os.path.exists(temp_path):
@@ -161,6 +221,52 @@ def _rule_based_health_reply(question):
     if "pregnan" in text:
         return "During pregnancy, avoid self-medication. Please consult a qualified doctor or your ASHA worker before taking medicines."
     return "I can help with dose timing, side effects, and basic medicine guidance. For emergencies, contact your nearest health worker immediately."
+
+
+def _ask_openrouter(question, language="EN"):
+    url = "https://openrouter.ai/api/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    
+    lang_name = "Kannada" if language.upper() == "KN" else "English"
+    
+    system_prompt = (
+        "You are AushadhiSaathi, a helpful and empathetic rural healthcare assistant in India. "
+        "Your role is to assist patients and ASHA workers with medicine timing, side effects, and basic health guidance. "
+        "Keep your answers safe, concise (2-3 short paragraphs maximum), and very easy to understand. "
+        "If there is a severe symptom or emergency, strongly advise contacting a doctor or going to the nearest hospital immediately. "
+        f"CRITICAL REQUIREMENT: You MUST respond completely in {lang_name}. Do NOT use any other language."
+    )
+
+    models_to_try = [
+        "google/gemini-2.5-flash-8b",
+        "google/gemini-2.5-flash",
+        "openai/gpt-4o-mini",
+        "meta-llama/llama-3-8b-instruct:free",
+        "qwen/qwen2.5-72b-instruct:free"
+    ]
+
+    for model in models_to_try:
+        payload = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ]
+        }
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=20)
+            response.raise_for_status()
+            data = response.json()
+            if "choices" in data and len(data["choices"]) > 0:
+                return data["choices"][0]["message"]["content"]
+        except Exception as e:
+            continue
+
+    # Fallback to rule-based if all API calls fail
+    return _rule_based_health_reply(question)
 
 
 def _sorted_firestore_docs(docs, limit=10):
@@ -208,12 +314,15 @@ def read_prescription_api():
     try:
         data = request.get_json(silent=True) or {}
         image_base64 = data.get("image")
+        language = str(data.get("language", "en")).strip()
+
         if not image_base64:
             return jsonify({"success": False, "error": "Missing image field"}), 400
 
-        result = _process_prescription_image(image_base64)
+        result = _process_prescription_image(image_base64, language=language)
         return jsonify({"success": True, **result})
     except Exception as error:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(error)}), 500
 
 
@@ -222,12 +331,15 @@ def verify_medicine_api():
     try:
         data = request.get_json(silent=True) or {}
         image_base64 = data.get("image")
+        language = str(data.get("language", "en")).strip()
+
         if not image_base64:
             return jsonify({"success": False, "error": "Missing image field"}), 400
 
-        result = _process_medicine_verification(image_base64)
+        result = _process_medicine_verification(image_base64, language=language)
         return jsonify({"success": True, **result})
     except Exception as error:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(error)}), 500
 
 
@@ -422,11 +534,12 @@ def asha_prescription_scan():
         nhm_id = _normalize_nhm_id(data.get("nhm_id"))
         patient_phone = _normalize_phone(data.get("patient_phone"))
         image_base64 = data.get("image")
+        language = str(data.get("language", "en")).strip()
 
         if not nhm_id or len(patient_phone) != 10 or not image_base64:
             return jsonify({"success": False, "error": "nhm_id, patient_phone and image are required"}), 400
 
-        result = _process_prescription_image(image_base64)
+        result = _process_prescription_image(image_base64, language=language)
 
         db.collection("asha_prescription_scans").add({
             "nhm_id": nhm_id,
@@ -439,6 +552,7 @@ def asha_prescription_scan():
 
         return jsonify({"success": True, **result})
     except Exception as error:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(error)}), 500
 
 
@@ -449,21 +563,25 @@ def asha_medicine_verify():
         nhm_id = _normalize_nhm_id(data.get("nhm_id"))
         patient_phone = _normalize_phone(data.get("patient_phone"))
         image_base64 = data.get("image")
+        language = str(data.get("language", "en")).strip()
 
         if not nhm_id or len(patient_phone) != 10 or not image_base64:
             return jsonify({"success": False, "error": "nhm_id, patient_phone and image are required"}), 400
 
-        result = _process_medicine_verification(image_base64)
+        result = _process_medicine_verification(image_base64, language=language)
         db.collection("asha_medicine_verifications").add({
             "nhm_id": nhm_id,
             "patient_phone": patient_phone,
             "scan_result": result["scan_result"],
             "verdict": result["verdict"],
+            "kannada_explanation": result.get("kannada_explanation"),
+            "kannada_explanation_audio_path": result.get("kannada_explanation_audio_path"),
             "created_at": _server_timestamp(),
         })
 
         return jsonify({"success": True, **result})
     except Exception as error:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(error)}), 500
 
 
@@ -570,7 +688,7 @@ def assistant_chat():
         if not question:
             return jsonify({"success": False, "error": "message is required"}), 400
 
-        answer = _rule_based_health_reply(question)
+        answer = _ask_openrouter(question, language)
         db.collection("asha_chat").add({
             "nhm_id": nhm_id,
             "patient_phone": patient_phone,
@@ -586,4 +704,4 @@ def assistant_chat():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
