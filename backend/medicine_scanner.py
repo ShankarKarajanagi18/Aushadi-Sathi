@@ -4,21 +4,19 @@ from pathlib import Path
 import requests
 import sys
 import time
-from config import OPENROUTER_API_KEY
+from config import OPENROUTER_API_KEY, GEMINI_API_KEY
 
 VERBOSE = False  # Set to True for debug output
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_CANDIDATES = [
-  "google/gemini-2.5-flash-image",
+  "openrouter/free",
+  "google/gemini-2.0-flash-exp:free",
+  "google/gemini-2.0-flash-001",
+  "google/gemini-flash-1.5",
   "google/gemini-2.5-flash",
-  "google/gemini-2.5-pro",
-  "baidu/qianfan-ocr-fast:free",
-  "nvidia/nemotron-nano-12b-v2-vl:free",
-  "qwen/qwen2.5-vl-72b-instruct:free",
-  "qwen/qwen2.5-vl-72b-instruct",
   "openai/gpt-4o-mini",
-  "meta-llama/llama-3.2-11b-vision-instruct",
+  "qwen/qwen-2.5-vl-72b-instruct:free",
 ]
 RETRY_DELAYS_SECONDS = [3]
 
@@ -145,7 +143,48 @@ def _call_openrouter(model_name, prompt, image_bytes, mime_type):
     return _extract_openrouter_text(response_json)
 
 
+def _call_google_gemini(prompt, image_bytes, mime_type):
+    if not GEMINI_API_KEY:
+        return None
+    image_b64 = base64.b64encode(image_bytes).decode("ascii")
+    for model in ["gemini-2.0-flash", "gemini-1.5-flash"]:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt},
+                        {
+                            "inline_data": {
+                                "mime_type": mime_type,
+                                "data": image_b64
+                            }
+                        }
+                    ]
+                }
+            ],
+            "generationConfig": {"temperature": 0.0}
+        }
+        try:
+            resp = requests.post(url, json=payload, timeout=45)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates") or []
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        return parts[0].get("text", "")
+            else:
+                _log(f"Google Gemini {model} status {resp.status_code}: {resp.text[:150]}")
+        except Exception as e:
+            _log(f"Google Gemini {model} exception: {e}")
+    return None
+
 def _generate_with_resilience(prompt, image_bytes, mime_type):
+    if GEMINI_API_KEY:
+        g_res = _call_google_gemini(prompt, image_bytes, mime_type)
+        if g_res:
+            return _strip_markdown_fences(g_res)
     last_error = None
     error_details = []
 
@@ -220,6 +259,12 @@ def _generate_with_resilience(prompt, image_bytes, mime_type):
         f"  5. Try generating a new API key at https://openrouter.ai/keys"
     )
 
+    if any("status=402" in d for d in error_details):
+        error_msg += (
+            "\n\n[ACTION NEEDED]: OpenRouter balance is $0 (402 Payment Required).\n"
+            "Solution 1 (100% Free): Get a free Gemini API key from https://aistudio.google.com and set GEMINI_API_KEY in Render.\n"
+            "Solution 2: Add credits ($1-$2) at https://openrouter.ai/settings/credits"
+        )
     if last_error is not None:
         raise RuntimeError(error_msg) from last_error
     raise RuntimeError("Unable to scan medicine label — no models were attempted.")

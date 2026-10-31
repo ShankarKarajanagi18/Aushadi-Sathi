@@ -17,7 +17,7 @@ except ImportError:
     firestore = None
 import requests
 
-from config import FIREBASE_KEY_PATH, OPENROUTER_API_KEY
+from config import FIREBASE_KEY_PATH, OPENROUTER_API_KEY, GEMINI_API_KEY
 from firebase_db import init_db
 from kannada_explainer import explain_in_kannada
 from english_explainer import explain_in_english
@@ -278,12 +278,29 @@ def _ask_openrouter(question, language="EN"):
         f"CRITICAL REQUIREMENT: You MUST respond completely in {lang_name}. Do NOT use any other language."
     )
 
+    if GEMINI_API_KEY:
+        for gem_model in ["gemini-2.0-flash", "gemini-1.5-flash"]:
+            gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/{gem_model}:generateContent?key={GEMINI_API_KEY}"
+            gem_payload = {
+                "contents": [{"parts": [{"text": f"{system_prompt}\n\nUser question: {question}"}]}],
+                "generationConfig": {"temperature": 0.3}
+            }
+            try:
+                g_resp = requests.post(gem_url, json=gem_payload, timeout=20)
+                if g_resp.status_code == 200:
+                    cands = g_resp.json().get("candidates") or []
+                    if cands:
+                        parts = cands[0].get("content", {}).get("parts", [])
+                        if parts:
+                            return parts[0].get("text", "").strip()
+            except Exception:
+                pass
+
     models_to_try = [
-        "google/gemini-2.5-flash-8b",
+        "openrouter/free",
+        "google/gemini-2.0-flash-exp:free",
         "google/gemini-2.5-flash",
         "openai/gpt-4o-mini",
-        "meta-llama/llama-3-8b-instruct:free",
-        "qwen/qwen2.5-72b-instruct:free"
     ]
 
     for model in models_to_try:

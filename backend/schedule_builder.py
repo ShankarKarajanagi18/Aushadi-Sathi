@@ -1,7 +1,7 @@
 import json
 import re
 import requests
-from config import OPENROUTER_API_KEY
+from config import OPENROUTER_API_KEY, GEMINI_API_KEY
 from english_explainer import explain_schedule_in_english
 from kannada_explainer import explain_schedule_in_kannada
 from hindi_explainer import explain_schedule_in_hindi
@@ -9,11 +9,12 @@ from hindi_explainer import explain_schedule_in_hindi
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 SCHEDULE_MODELS = [
+    "openrouter/free",
+    "google/gemini-2.0-flash-exp:free",
     "google/gemini-2.5-flash",
     "google/gemini-2.5-flash-8b",
     "openai/gpt-4o-mini",
     "meta-llama/llama-3.3-70b-instruct:free",
-    "qwen/qwen2.5-72b-instruct:free",
 ]
 
 
