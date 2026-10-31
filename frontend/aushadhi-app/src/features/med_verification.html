@@ -453,7 +453,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text })
             });
-            setStatus('Audio generation triggered. Check backend audio folder.', false);
+            setStatus('Playing spoken verdict audio...', false);
         } catch (_error) {
             setStatus('Unable to trigger verdict audio.', true);
         }

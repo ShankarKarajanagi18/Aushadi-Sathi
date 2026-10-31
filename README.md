@@ -1,5 +1,5 @@
-# 🏙️ Build for Bengaluru Hackathon — AushadhiSaathi (ಔಷಧಿಸಾಥಿ)
-### 💊 AI-Powered Medicine Safety Assistant for Karnataka
+# 💊 AushadhiSaathi (ಔಷಧಿಸಾಥಿ)
+### AI-Powered Medicine Safety & Multilingual Prescription Assistant
 
 ---
 
@@ -19,7 +19,7 @@ No consumer-facing tool exists to solve either problem. Poor patients — domest
 
 **ASHA Worker Dashboard** — Dedicated login, patient management, medicine verification, prescription scanning, SMS reminders, and scan history — giving frontline health workers a free tool to serve their communities better.
 
-Built for Bengaluru first, it works identically for any government hospital patient across Karnataka. Future language additions (Hindi, Telugu, Tamil) will extend it to all of India.
+Designed to bridge literacy and language gaps in healthcare, AushadhiSaathi empowers patients and frontline health workers across Karnataka and India with real-time vernacular audio explanations and medicine authentication.
 
 ---
 
@@ -39,30 +39,17 @@ AushadhiSaathi is built for the people who visit hospitals in Bengaluru and acro
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Architecture & Tech Stack
 
-### Google Technologies *(core foundation)*
-
-| Technology | How it's used |
-|---|---|
-| **Firebase Firestore** | Stores CDSCO NSQ medicine database, community RED reports, ASHA profiles, patient records, scan history |
-| **Firebase Hosting** | Hosts the React PWA — zero cost, scalable |
-| **Gemini API — Vision** | Reads prescription images and medicine packaging → structured JSON |
-| **Gemini API — Text** | Generates Kannada and English explanations of prescriptions and safety verdicts |
-| **Google Stitch** | Designed and generated the React frontend UI components |
-| **Antigravity IDE** | Development environment used to build the project during the hackathon |
-| **Google Flow** | Generated the project demo video |
-| **Google TTS** | Converts Kannada and English explanations to natural speech |
-| **Google Maps Platform** | Geo-tags RED medicine reports; powers the nearest ASHA worker locator |
-
-### Additional Technologies
-
-| Technology | Role |
-|---|---|
-| React 18 | Frontend framework |
-| Python / Flask | Backend API |
-| ElevenLabs TTS | High-quality Kannada voice (Google TTS as fallback) |
-| pdfplumber | CDSCO PDF data extraction |
+| Layer | Technologies & Tools | Purpose |
+|---|---|---|
+| **Frontend** | React 18, Tailwind CSS, Lucide Icons, Capacitor | Responsive mobile-first PWA, multilingual UI, audio playback |
+| **Backend API** | Python 3.10+, Flask, Flask-CORS | Modular REST API handling OCR pipelines, verification & TTS services |
+| **Database & Cloud** | Google Cloud Firebase Firestore | Scalable NoSQL store for CDSCO NSQ medicine records, ASHA profiles, scan history & reports |
+| **Vision & AI Reasoning** | Google Gemini Vision & 1.5 Flash (via OpenRouter) | Multi-pass prescription OCR, medicine packaging data extraction, clinical explainer engine |
+| **Vernacular Audio** | Google Cloud TTS & ElevenLabs | Natural voice synthesis in Kannada, Hindi, and Indian English |
+| **Data Pipeline** | pdfplumber, Pandas | Automated extraction and cleaning of official CDSCO NSQ drug safety bulletins |
+| **Geospatial & Mapping** | Folium, Geopy, Leaflet | Counterfeit drug hotspot mapping and nearest ASHA worker locator |
 
 ---
 
@@ -123,9 +110,9 @@ npm start                        # runs at http://localhost:3000
 
 ---
 
-## 🎬 Demo Video
+## 🎬 Project Walkthrough
 
-Generated using **Google Flow** — walks through both core flows (prescription reading and medicine verification) with real app footage and Kannada voice output.
+Demonstrating both core flows (prescription reading and medicine verification) with live app footage and natural vernacular voice guidance.
 
 ---
 
@@ -186,6 +173,7 @@ AushadhiSaathi/
 
 *AushadhiSaathi — ಔಷಧಿಸಾಥಿ — Your Medicine Companion*
 
-**Built in 30 hours · Build for Bengaluru Hackathon · REVA University · April 2025**
+**An Open Source Personal Healthcare Project by [Shankar Karajanagi](https://github.com/ShankarKarajanagi18)**
+*Empowering patients and frontline healthcare workers with safe, accessible medicine information.*
 
 </div>

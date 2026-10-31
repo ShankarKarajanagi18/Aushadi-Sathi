@@ -325,7 +325,7 @@
             appendBotMessage(json.answer || 'No answer returned.');
             chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
         } catch (error) {
-            appendBotMessage(error.message || 'Unable to get response from backend.');
+            appendBotMessage(error.message || 'Unable to get response. Please try again.');
             chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
         }
     }
@@ -344,6 +344,6 @@
         });
     });
 
-    appendBotMessage('Namaskara. I am connected to the live backend now. Ask any medicine or dosage question.');
+    appendBotMessage("Namaskara! I'm your medicine helper. Ask me about your medicines, doses, or food rules. I'm not a doctor, so for emergencies please visit a hospital.");
 </script>
 </body></html>

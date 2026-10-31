@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../i18n/LanguageContext';
 import T from '../i18n/translations';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
+
 
 export default function HomePage() {
-  const { lang, setLanguage, toggleLang } = useLang();
+  const { lang } = useLang();
   const t = (key) => (T[key] && T[key][lang]) || T[key]?.en || key;
   const [sessionName, setSessionName] = useState(null);
   const navigate = useNavigate();
@@ -64,21 +66,16 @@ export default function HomePage() {
               CHAT BOT
             </span>
 
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 ml-2">
-              <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all ${lang === 'en' ? 'bg-white dark:bg-[#005D67] text-[#005D67] dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-white/50'}`}>EN</button>
-              <button onClick={() => setLanguage('kn')} className={`px-3 py-1 text-[11px] font-bold rounded-full transition-all ${lang === 'kn' ? 'bg-white dark:bg-[#005D67] text-[#005D67] dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:bg-white/50'}`}>ಕನ್ನಡ</button>
-            </div>
+            <LanguageSwitcher className="ml-2" />
             <button onClick={() => sessionName ? navigate('/asha-worker') : navigate('/asha-login')} className="bg-[#005D67] text-white px-5 py-2 rounded-lg font-manrope font-semibold text-sm hover:opacity-90 transition-all">
               {sessionName ? `Dashboard: ${sessionName}` : t('signIn')}
             </button>
           </nav>
-          <div className="flex items-center gap-4 md:hidden">
-            <button onClick={toggleLang} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-primary dark:text-teal-400">
-              <span className="material-symbols-outlined text-sm">language</span>
-              <span className="text-xs font-bold font-manrope uppercase">{lang === 'en' ? 'EN' : 'ಕನ್ನಡ'}</span>
-            </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
             <button className="flex items-center p-2 text-primary"><span className="material-symbols-outlined">menu</span></button>
           </div>
+
         </div>
       </header>
 
@@ -180,27 +177,27 @@ export default function HomePage() {
           <div className="col-span-1">
             <h3 className="font-manrope font-bold text-[#005D67] mb-6 text-base">Platform</h3>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Patient Portal</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">ASHA Dashboard</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Medical Directory</a></li>
+              <li><a href="#patient-portal" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Patient Portal</a></li>
+              <li><a href="#asha-dashboard" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">ASHA Dashboard</a></li>
+              <li><a href="#medical-directory" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Medical Directory</a></li>
             </ul>
           </div>
 
           <div className="col-span-1">
             <h3 className="font-manrope font-bold text-[#005D67] mb-6 text-base">Support</h3>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Help Center</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">NHM Guidelines</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Contact Us</a></li>
+              <li><a href="#help-center" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Help Center</a></li>
+              <li><a href="#nhm-guidelines" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">NHM Guidelines</a></li>
+              <li><a href="#contact" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Contact Us</a></li>
             </ul>
           </div>
 
           <div className="col-span-1">
             <h3 className="font-manrope font-bold text-[#005D67] mb-6 text-base">Legal</h3>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Privacy Policy</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Data Security</a></li>
-              <li><a href="#" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Terms of Use</a></li>
+              <li><a href="#privacy" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Privacy Policy</a></li>
+              <li><a href="#data-security" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Data Security</a></li>
+              <li><a href="#terms" className="text-sm text-slate-600 hover:text-[#005D67] transition-colors font-manrope">Terms of Use</a></li>
             </ul>
           </div>
         </div>

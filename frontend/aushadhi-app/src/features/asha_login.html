@@ -202,8 +202,8 @@
 <span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
 </div>
 <div>
-<h4 class="font-h3 text-[16px] text-primary mb-1">Demo Tip</h4>
-<p class="text-on-surface-variant text-body-md">Demo: Use <span class="font-bold text-primary">NHM ID = ASHA001</span> to quickly test the dashboard features.</p>
+<h4 class="font-h3 text-[16px] text-primary mb-1">Official Access</h4>
+<p class="text-on-surface-variant text-body-md">Authorized health workers: Enter your designated NHM ID and registered phone number to access the portal.</p>
 </div>
 </div>
 </div>
@@ -319,7 +319,7 @@
                                 window.location.href = './asha_worker.html';
                         }, 500);
                 } catch (error) {
-                        setMessage(error.message || 'Unable to reach backend. Make sure Flask is running on port 5000.', true);
+                        setMessage(error.message || 'Unable to connect. Please check your network and try again.', true);
                 } finally {
                         loginButton.disabled = false;
                         loginButton.classList.remove('opacity-70');

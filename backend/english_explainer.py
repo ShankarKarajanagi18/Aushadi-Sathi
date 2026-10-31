@@ -147,3 +147,101 @@ def explain_in_english(prescription_json_string):
       return _build_spoken_english_explanation(prescription_json_string)
     except Exception:
       return _fallback_english_explanation(prescription_json_string)
+
+
+def explain_schedule_in_english(schedule_data):
+    """Generate a spoken English summary for daily dose timetable and safety check."""
+    if not isinstance(schedule_data, dict):
+        return "Here is your medicine schedule. Please consult your pharmacist or doctor."
+
+    schedule = schedule_data.get("schedule") or {}
+    morning = schedule.get("morning") or []
+    afternoon = schedule.get("afternoon") or []
+    night = schedule.get("night") or []
+    interactions = schedule_data.get("interactions") or []
+    warnings = schedule_data.get("warnings") or []
+
+    lines = [
+        "Hello. Here is your daily dose schedule and safety check."
+    ]
+
+    # Morning
+    if morning:
+        items = []
+        for m in morning:
+            med_name = m.get("medicine") or m.get("name") or "Medicine"
+            dose = m.get("dose") or ""
+            food = m.get("food") or m.get("timing") or ""
+            parts = [med_name]
+            if dose and "unsure" not in dose.lower():
+                parts.append(dose)
+            if food and "unsure" not in food.lower():
+                parts.append(food)
+            elif "unsure" in str(food).lower():
+                parts.append("ask pharmacist about food timing")
+            items.append(", ".join(parts))
+        lines.append("In the morning: " + "; ".join(items) + ".")
+    else:
+        lines.append("No medicines are scheduled for the morning.")
+
+    # Afternoon
+    if afternoon:
+        items = []
+        for m in afternoon:
+            med_name = m.get("medicine") or m.get("name") or "Medicine"
+            dose = m.get("dose") or ""
+            food = m.get("food") or m.get("timing") or ""
+            parts = [med_name]
+            if dose and "unsure" not in dose.lower():
+                parts.append(dose)
+            if food and "unsure" not in food.lower():
+                parts.append(food)
+            elif "unsure" in str(food).lower():
+                parts.append("ask pharmacist about food timing")
+            items.append(", ".join(parts))
+        lines.append("In the afternoon: " + "; ".join(items) + ".")
+    else:
+        lines.append("No medicines are scheduled for the afternoon.")
+
+    # Night
+    if night:
+        items = []
+        for m in night:
+            med_name = m.get("medicine") or m.get("name") or "Medicine"
+            dose = m.get("dose") or ""
+            food = m.get("food") or m.get("timing") or ""
+            parts = [med_name]
+            if dose and "unsure" not in dose.lower():
+                parts.append(dose)
+            if food and "unsure" not in food.lower():
+                parts.append(food)
+            elif "unsure" in str(food).lower():
+                parts.append("ask pharmacist about food timing")
+            items.append(", ".join(parts))
+        lines.append("At night: " + "; ".join(items) + ".")
+    else:
+        lines.append("No medicines are scheduled for the night.")
+
+    # Interactions & Safety
+    high_or_med = [
+        item for item in interactions 
+        if str(item.get("risk", "")).lower() in ("high", "medium")
+    ]
+    if high_or_med:
+        lines.append("Safety check alert:")
+        for item in high_or_med[:2]:
+            meds = ", ".join(item.get("medicines") or [])
+            note = item.get("note", "")
+            lines.append(f"Caution between {meds}: {note}")
+    elif interactions:
+        lines.append("Safety check: No high-risk drug interactions detected.")
+    else:
+        lines.append("Safety check: No significant drug interactions found.")
+
+    if warnings:
+        for w in warnings[:2]:
+            lines.append(f"Important warning: {w}")
+
+    lines.append("This is not medical advice. Always consult your doctor or pharmacist if you have questions.")
+    return "\n".join(lines)
+

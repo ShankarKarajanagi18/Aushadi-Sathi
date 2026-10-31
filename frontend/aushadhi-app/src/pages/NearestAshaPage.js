@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../api';
 import { useLang } from '../i18n/LanguageContext';
 import T from '../i18n/translations';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
+
 
 const STATIC_WORKERS = [
   { full_name: 'Lakshmi Devi', nhm_id: '8849-552', village: 'Sector 14, Marathahalli Village', village_kn: 'ಸೆಕ್ಟರ್ 14, ಮಾರತಹಳ್ಳಿ ಗ್ರಾಮ', distance_km: 0.8, phone: '', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBGBWwZeXEU3uRBNVY6H22jPtnnkiONFqt2zBdoZrze-ocJtmYkG4ACAgZ1ybUI8-FjLDNp4oT4npOEYnJDpJ0TybNOlNZLVSSENOYXrvdtmvUBVEE8hye1l7-uLl4vyTe60bjz4NqeOda9CyW1iNZDhNQP-RtAu1J0f3_gspRl7UY7tLVMHpatkWSEwa3JycEdopBV4QeOYTw_bIosFCm8lOOGIeXL3E9wqoTienbMZYwIWdohm39SLoWUXNtBlYIHMufBghSxm_4' },
@@ -12,7 +14,7 @@ const STATIC_WORKERS = [
 
 export default function NearestAshaPage() {
   const navigate = useNavigate();
-  const { lang, toggleLang } = useLang();
+  const { lang } = useLang();
   const t = (key) => (T[key] && T[key][lang]) || T[key]?.en || key;
   const [workers, setWorkers] = useState(STATIC_WORKERS);
   const [statusMsg, setStatusMsg] = useState('');
@@ -25,13 +27,20 @@ export default function NearestAshaPage() {
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || 'Failed');
       if (json.workers && json.workers.length > 0) setWorkers(json.workers);
-      setStatusMsg('Live data loaded.');
+      setStatusMsg('');
     } catch (err) { setStatusMsg(err.message); }
   }, []);
 
   useEffect(() => {
-    if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(pos => fetchWorkers(pos.coords.latitude, pos.coords.longitude), () => fetchWorkers()); }
-    else { fetchWorkers(); }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => fetchWorkers(pos.coords.latitude, pos.coords.longitude),
+        () => fetchWorkers(),
+        { timeout: 3000 }
+      );
+    } else {
+      fetchWorkers();
+    }
   }, [fetchWorkers]);
 
   return (
@@ -39,14 +48,11 @@ export default function NearestAshaPage() {
       <header className="bg-white sticky top-0 z-50 border-b border-slate-100 shadow-[0_16px_32px_-12px_rgba(0,93,103,0.04)] flex justify-between items-center px-6 py-4 w-full gap-2">
         <div className="flex items-center gap-4">
           <button onClick={() => navigate('/')} className="material-symbols-outlined text-[#005D67] hover:bg-slate-50 transition-colors p-2 rounded-full">arrow_back</button>
-          <h1 className="font-manrope text-lg font-bold tracking-tight text-[#005D67]">AushadhiSaathi | ಔಷಧಿ ಸಾಥಿ</h1>
+          <h1 className="font-manrope text-lg font-bold tracking-tight text-[#005D67]">AushadhiSaathi</h1>
         </div>
-        <button onClick={toggleLang} className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[#005D67]/20 hover:bg-[#005D67]/5 transition-colors">
-          <span className={`font-manrope text-sm ${lang === 'en' ? 'font-bold text-[#005D67]' : 'font-medium text-slate-500'}`}>EN</span>
-          <span className="text-slate-300">|</span>
-          <span className={`font-manrope text-sm ${lang === 'kn' ? 'font-bold text-[#005D67]' : 'font-medium text-slate-500'}`}>ಕನ್ನಡ</span>
-        </button>
+        <LanguageSwitcher />
       </header>
+
 
       <main className="max-w-screen-md mx-auto px-4 pt-8 pb-32">
         <section className="mb-8">

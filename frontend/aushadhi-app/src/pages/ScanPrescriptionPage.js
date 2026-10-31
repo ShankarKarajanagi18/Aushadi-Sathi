@@ -4,6 +4,10 @@ import { API_BASE, fileToBase64 } from '../api';
 import { useLang } from '../i18n/LanguageContext';
 import T from '../i18n/translations';
 import LoadingFacts from '../LoadingFacts';
+import DoseScheduleSection from '../features/DoseScheduleSection';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
+
+
 
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
@@ -89,13 +93,21 @@ export default function ScanPrescriptionPage() {
     const meds = rx.medicines || rx.medications || [];
     return (
       <div className="fixed inset-0 z-40 bg-background overflow-y-auto pb-20">
-        <div className="max-w-lg mx-auto px-4 py-6 pb-28">
-          <div className="flex items-center justify-between mb-6">
+        <div className="max-w-2xl mx-auto px-4 py-6 pb-28">
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
             <h2 className="font-h2 text-h2 text-primary">{t('result')}</h2>
-            <button onClick={() => navigate('/')} className="px-5 py-2 bg-[#005D67] text-white rounded-lg font-manrope font-semibold text-sm">{t('home')}</button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <button onClick={() => navigate('/')} className="px-5 py-2 bg-[#005D67] text-white rounded-lg font-manrope font-semibold text-sm">{t('home')}</button>
+            </div>
           </div>
+
+          {/* Daily Dose Schedule + Safety Check */}
+          <DoseScheduleSection prescriptionData={resultData} lang={lang} t={t} />
+
           <div className="mb-6">
             <h3 className="font-h3 text-h3 text-on-surface mb-3">{t('prescriptionDetails')}</h3>
+
             <div className="space-y-3">
               {meds.length === 0 ? <p className="text-on-surface-variant text-sm">{t('noMedicinesDetected')}</p> : meds.map((m, i) => (
                 <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
@@ -109,12 +121,31 @@ export default function ScanPrescriptionPage() {
           </div>
           <div className="mb-6">
             <div className="bg-slate-100 border border-slate-200 rounded-xl p-5">
-              <h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Explanation' : t('kannadaExplanation')}</h4>
-              <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">{lang === 'en' ? (resultData.explanation || t('noExplanation')) : (resultData.kannada_explanation || t('noExplanation'))}</p>
+              <h4 className="font-manrope font-bold text-on-surface mb-3">
+                {lang === 'hi' ? t('hindiExplanation') : lang === 'kn' ? t('kannadaExplanation') : 'Explanation'}
+              </h4>
+              <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">
+                {lang === 'hi'
+                  ? (resultData.hindi_explanation || resultData.explanation || t('noExplanation'))
+                  : lang === 'kn'
+                  ? (resultData.kannada_explanation || t('noExplanation'))
+                  : (resultData.explanation || t('noExplanation'))}
+              </p>
             </div>
           </div>
-          {(lang === 'en' ? resultData.explanation_audio : resultData.kannada_explanation_audio) && (
-            <div className="mb-6"><div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm"><h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Audio Guide' : t('kannadaAudio')}</h4><audio controls className="w-full" src={`data:audio/mp3;base64,${lang === 'en' ? resultData.explanation_audio : resultData.kannada_explanation_audio}`}></audio></div></div>
+          {Boolean(lang === 'hi' ? (resultData.hindi_explanation_audio || resultData.audio) : lang === 'kn' ? resultData.kannada_explanation_audio : resultData.explanation_audio) && (
+            <div className="mb-6">
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <h4 className="font-manrope font-bold text-on-surface mb-3">
+                  {lang === 'hi' ? t('hindiAudio') : lang === 'kn' ? t('kannadaAudio') : 'Audio Guide'}
+                </h4>
+                <audio
+                  controls
+                  className="w-full"
+                  src={`data:audio/mp3;base64,${lang === 'hi' ? (resultData.hindi_explanation_audio || resultData.audio) : lang === 'kn' ? resultData.kannada_explanation_audio : resultData.explanation_audio}`}
+                ></audio>
+              </div>
+            </div>
           )}
           <button onClick={() => { setShowResults(false); setResultData(null); }} className="w-full py-3 bg-primary text-white font-manrope font-bold rounded-xl">{t('scanAnother')}</button>
         </div>
@@ -129,7 +160,9 @@ export default function ScanPrescriptionPage() {
           <button onClick={() => navigate('/')} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 active:scale-95"><span className="material-symbols-outlined text-[#005D67]">arrow_back</span></button>
           <h1 className="font-manrope text-lg font-bold tracking-tight text-[#005D67]">{t('scanPrescription')}</h1>
         </div>
+        <LanguageSwitcher />
       </header>
+
 
       <main className="mt-16 flex-grow flex flex-col items-center px-4 py-8 overflow-y-auto">
         <section className="w-full max-w-md">

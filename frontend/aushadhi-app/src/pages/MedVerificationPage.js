@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE, fileToBase64 } from '../api';
 import { useLang } from '../i18n/LanguageContext';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import T from '../i18n/translations';
 import LoadingFacts from '../LoadingFacts';
 
@@ -11,7 +12,6 @@ export default function MedVerificationPage() {
   const mode = location.state?.mode;
   const { lang } = useLang();
   const t = (key) => (T[key] && T[key][lang]) || T[key]?.en || key;
-  const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
   const [statusMsg, setStatusMsg] = useState('');
   const [isError, setIsError] = useState(false);
@@ -87,6 +87,8 @@ export default function MedVerificationPage() {
         verdict: json.verdict,
         kannada_explanation: json.kannada_explanation,
         kannada_explanation_audio: json.kannada_explanation_audio,
+        hindi_explanation: json.hindi_explanation,
+        hindi_explanation_audio: json.hindi_explanation_audio,
         explanation: json.explanation,
         explanation_audio: json.explanation_audio
       };
@@ -133,16 +135,32 @@ export default function MedVerificationPage() {
   }
 
   async function handleHearVerdict() {
-    if (data?.kannada_explanation_audio) {
+    const currentAudio = lang === 'en' ? data?.explanation_audio : (lang === 'hi' ? data?.hindi_explanation_audio : data?.kannada_explanation_audio);
+    if (currentAudio) {
       setStatusMsg('Audio is already available above.');
       return;
     }
     const scan = data?.scan_result || {}; const verdict = data?.verdict || {};
     try {
-      const res = await fetch(API_BASE + '/speak', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: data?.explanation || data?.kannada_explanation || 'Verification status is ' + (verdict.status || 'UNKNOWN') + '. ' + (scan.composition || '') }) });
+      const textToSpeak = lang === 'hi'
+        ? (data?.hindi_explanation || 'दवा की जांच स्थिति ' + (verdict.status || 'अज्ञात') + ' है। ' + (scan.composition || ''))
+        : (lang === 'en'
+          ? (data?.explanation || 'Verification status is ' + (verdict.status || 'UNKNOWN') + '. ' + (scan.composition || ''))
+          : (data?.kannada_explanation || 'ಔಷಧ ತಪಾಸಣೆ ಸ್ಥಿತಿ ' + (verdict.status || 'UNKNOWN') + '. ' + (scan.composition || '')));
+      const res = await fetch(API_BASE + '/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToSpeak, language: lang })
+      });
       const json = await res.json();
       if (json.audio) {
-        setData(prev => ({ ...prev, kannada_explanation_audio: json.audio }));
+        if (lang === 'hi') {
+          setData(prev => ({ ...prev, hindi_explanation_audio: json.audio }));
+        } else if (lang === 'en') {
+          setData(prev => ({ ...prev, explanation_audio: json.audio }));
+        } else {
+          setData(prev => ({ ...prev, kannada_explanation_audio: json.audio }));
+        }
         setStatusMsg('Audio generated.');
         setIsError(false);
       } else {
@@ -173,6 +191,7 @@ export default function MedVerificationPage() {
             <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 active:scale-95"><span className="material-symbols-outlined text-teal-800">arrow_back</span></button>
             <h1 className="text-xl font-extrabold text-teal-800">{t('medVerify')}</h1>
           </div>
+          <LanguageSwitcher />
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-6 py-10 pb-32">
@@ -259,25 +278,25 @@ export default function MedVerificationPage() {
               </div>
             </div>
 
-            {(data.explanation || data.kannada_explanation || data.explanation_audio || data.kannada_explanation_audio) && (
+            {(data.explanation || data.kannada_explanation || data.hindi_explanation || data.explanation_audio || data.kannada_explanation_audio || data.hindi_explanation_audio) && (
               <div className="mt-8 space-y-4">
-                {(lang === 'en' ? data.explanation : data.kannada_explanation) && (
+                {(lang === 'en' ? data.explanation : (lang === 'hi' ? data.hindi_explanation : data.kannada_explanation)) && (
                   <div className="bg-slate-100 border border-slate-200 rounded-xl p-5">
-                    <h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Explanation' : t('kannadaExplanation')}</h4>
-                    <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">{lang === 'en' ? data.explanation : data.kannada_explanation}</p>
+                    <h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Explanation' : (lang === 'hi' ? t('hindiExplanation') : t('kannadaExplanation'))}</h4>
+                    <p className="text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap">{lang === 'en' ? data.explanation : (lang === 'hi' ? data.hindi_explanation : data.kannada_explanation)}</p>
                   </div>
                 )}
-                {(lang === 'en' ? data.explanation_audio : data.kannada_explanation_audio) && (
+                {(lang === 'en' ? data.explanation_audio : (lang === 'hi' ? data.hindi_explanation_audio : data.kannada_explanation_audio)) && (
                   <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                    <h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Audio Guide' : t('kannadaAudio')}</h4>
-                    <audio controls className="w-full" src={`data:audio/mp3;base64,${lang === 'en' ? data.explanation_audio : data.kannada_explanation_audio}`}></audio>
+                    <h4 className="font-manrope font-bold text-on-surface mb-3">{lang === 'en' ? 'Audio Guide' : (lang === 'hi' ? t('hindiAudio') : t('kannadaAudio'))}</h4>
+                    <audio controls className="w-full" src={`data:audio/mp3;base64,${lang === 'en' ? data.explanation_audio : (lang === 'hi' ? data.hindi_explanation_audio : data.kannada_explanation_audio)}`}></audio>
                   </div>
                 )}
               </div>
             )}
 
             <div className="mt-12 space-y-4">
-              {!(lang === 'en' ? data.explanation_audio : data.kannada_explanation_audio) && (
+              {!(lang === 'en' ? data.explanation_audio : (lang === 'hi' ? data.hindi_explanation_audio : data.kannada_explanation_audio)) && (
                 <button onClick={handleHearVerdict} className="w-full bg-[#FF7D29] hover:bg-[#E66A1F] text-white font-h3 py-5 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-orange-500/20 active:scale-[0.98] transition-all"><span className="material-symbols-outlined text-2xl">volume_up</span>{t('hearVerdict')}</button>
               )}
               <button onClick={() => { setData(null); setStatusMsg(''); }} className="w-full bg-white border-2 border-primary/20 text-primary hover:bg-slate-50 font-h3 py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all">

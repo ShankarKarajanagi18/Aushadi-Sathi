@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../api';
 import useAshaSession from '../hooks/useAshaSession';
 import { useLang } from '../i18n/LanguageContext';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import T from '../i18n/translations';
 
 export default function AshaHistoryPage() {
@@ -13,7 +14,6 @@ export default function AshaHistoryPage() {
   const [status, setStatus] = useState({ message: '', isError: false });
   const [historyItems, setHistoryItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   const fetchHistory = useCallback(async () => {
     if (!session) return;
     try {
@@ -72,7 +72,13 @@ export default function AshaHistoryPage() {
     }
   }, [session]);
 
-  useEffect(() => { fetchHistory(); }, [fetchHistory]);
+  useEffect(() => {
+    if (!session || !session.nhm_id) {
+      navigate('/asha-login');
+      return;
+    }
+    fetchHistory();
+  }, [session, navigate, fetchHistory]);
 
   function handleLogout() { clearSession(); navigate('/asha-login'); }
 
@@ -80,9 +86,12 @@ export default function AshaHistoryPage() {
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen pb-24">
-      <header className="bg-white shadow-sm border-b border-slate-100 flex items-center gap-4 w-full px-6 h-16 sticky top-0 z-50">
-        <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 active:scale-95"><span className="material-symbols-outlined text-[#005D67]">arrow_back</span></button>
-        <h1 className="text-xl font-extrabold text-[#005D67]">{t('history') || 'History'}</h1>
+      <header className="bg-white shadow-sm border-b border-slate-100 flex items-center justify-between w-full px-6 h-16 sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-50 active:scale-95"><span className="material-symbols-outlined text-[#005D67]">arrow_back</span></button>
+          <h1 className="text-xl font-extrabold text-[#005D67]">{t('history') || 'History'}</h1>
+        </div>
+        <LanguageSwitcher />
       </header>
 
       <main className="max-w-2xl mx-auto px-4 pt-6 space-y-6">

@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE } from '../api';
+import { API_BASE, fileToBase64 } from '../api';
 import useAshaSession from '../hooks/useAshaSession';
 import { useLang } from '../i18n/LanguageContext';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 import T from '../i18n/translations';
 
 export default function AshaWorkerPage() {
@@ -14,6 +15,10 @@ export default function AshaWorkerPage() {
   const [status, setStatus] = useState({ message: '', isError: false });
   const [medicineCards, setMedicineCards] = useState([]);
   const [smsPreview, setSmsPreview] = useState('');
+  const [latestItem, setLatestItem] = useState(null);
+
+  const prescriptionInputRef = useRef(null);
+  const medInputRef = useRef(null);
 
   useEffect(() => {
     if (!session || !session.nhm_id) { navigate('/asha-login'); return; }
@@ -27,6 +32,20 @@ export default function AshaWorkerPage() {
     const stored = localStorage.getItem('currentPatientPhone') || '';
     return stored.length === 10 ? stored : '';
   }, [patientPhone]);
+
+  const getExplanationForLang = useCallback((item, targetLang) => {
+    if (!item) return '';
+    const l = (targetLang || 'en').toLowerCase();
+    if (item.type === 'verification' || item.verdict) {
+      if (l === 'hi') return item.hindi_explanation || item.verdict?.hindi || '';
+      if (l === 'kn') return item.kannada_explanation || item.verdict?.kannada || '';
+      return item.english_explanation || item.explanation || item.verdict?.english || '';
+    }
+    // prescription
+    if (l === 'hi') return item.hindi_explanation || '';
+    if (l === 'kn') return item.kannada_explanation || '';
+    return item.english_explanation || item.explanation || '';
+  }, []);
 
   const fetchDashboard = useCallback(async () => {
     if (!session) return;
@@ -68,25 +87,129 @@ export default function AshaWorkerPage() {
         });
       });
       combinedCards.sort((a, b) => (b.timestamp || '').localeCompare(a.timestamp || ''));
-
       setMedicineCards(combinedCards);
-      setSmsPreview(buildSmsPreview(vf, sc, phone));
-      setStatus({ message: 'Dashboard synced.', isError: false });
+
+      const allHistory = [...vf, ...sc].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+      const newest = allHistory.length > 0 ? allHistory[0] : null;
+      setLatestItem(newest);
+
+      if (newest) {
+        const initialText = getExplanationForLang(newest, lang);
+        if (initialText) {
+          setSmsPreview(initialText);
+        }
+      } else {
+        setSmsPreview('');
+      }
+
+      setStatus({ message: '', isError: false });
     } catch (err) { setStatus({ message: err.message, isError: true }); }
-  }, [session, getCurrentPhone]);
+  }, [session, getCurrentPhone, lang, getExplanationForLang]);
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
 
-  function buildSmsPreview(vf, sc, phone) {
-    const allHistory = [...vf, ...sc].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
-    if (allHistory.length === 0) return t('noVerificationData');
-
-    const latestItem = allHistory.find(item => item.explanation || item.kannada_explanation);
-    if (latestItem) {
-      return lang === 'en' ? (latestItem.explanation || latestItem.kannada_explanation) : (latestItem.kannada_explanation || latestItem.explanation);
+  // Reactive language switch: Regenerate / update preview in new language without rescan
+  useEffect(() => {
+    if (!latestItem) {
+      setSmsPreview('');
+      return;
     }
 
-    return 'Hello. Update for patient ' + (phone || 'N/A') + '. No instructions available.';
+    const availableText = getExplanationForLang(latestItem, lang);
+    if (availableText) {
+      setSmsPreview(availableText);
+      return;
+    }
+
+    // If explanation in the selected language is not yet in the item, regenerate via backend explainer
+    let cancelled = false;
+    if (latestItem.prescription) {
+      fetch(API_BASE + '/asha/workflows/explain-prescription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prescription: latestItem.prescription,
+          language: lang,
+        }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!cancelled && data.success && data.explanation) {
+            if (lang === 'hi') latestItem.hindi_explanation = data.explanation;
+            else if (lang === 'kn') latestItem.kannada_explanation = data.explanation;
+            else {
+              latestItem.english_explanation = data.explanation;
+              latestItem.explanation = data.explanation;
+            }
+            setSmsPreview(data.explanation);
+          }
+        })
+        .catch(err => console.error('Failed to regenerate preview:', err));
+    }
+
+    return () => { cancelled = true; };
+  }, [lang, latestItem, getExplanationForLang]);
+
+  async function handlePrescriptionUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const phone = getCurrentPhone();
+    if (phone.length !== 10) {
+      setStatus({ message: t('enterPhone') || 'Please enter a valid 10-digit patient phone number first.', isError: true });
+      return;
+    }
+    setStatus({ message: t('processingPrescription') || 'Processing prescription...', isError: false });
+    try {
+      const base64 = await fileToBase64(file);
+      const res = await fetch(API_BASE + '/asha/workflows/prescription-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nhm_id: session.nhm_id,
+          patient_phone: phone,
+          image: base64,
+          language: lang,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to scan prescription');
+      setStatus({ message: 'Prescription scanned successfully!', isError: false });
+      await fetchDashboard();
+    } catch (err) {
+      setStatus({ message: err.message, isError: true });
+    }
+    e.target.value = '';
+  }
+
+  async function handleMedVerificationUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const phone = getCurrentPhone();
+    if (phone.length !== 10) {
+      setStatus({ message: t('enterPhone') || 'Please enter a valid 10-digit patient phone number first.', isError: true });
+      return;
+    }
+    setStatus({ message: 'Verifying medicine...', isError: false });
+    try {
+      const base64 = await fileToBase64(file);
+      const res = await fetch(API_BASE + '/asha/workflows/medicine-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nhm_id: session.nhm_id,
+          patient_phone: phone,
+          image: base64,
+          language: lang,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Failed to verify medicine');
+      setStatus({ message: 'Medicine verified successfully!', isError: false });
+      await fetchDashboard();
+    } catch (err) {
+      setStatus({ message: err.message, isError: true });
+    }
+    e.target.value = '';
   }
 
   async function handlePhoneChange() {
@@ -95,17 +218,18 @@ export default function AshaWorkerPage() {
     try {
       await fetch(API_BASE + '/asha/patients/upsert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nhm_id: session.nhm_id, phone, area: session.village || '' }) });
       await fetchDashboard();
-    } catch (_err) { setStatus({ message: 'Sync failed.', isError: true }); }
+    } catch (_err) { setStatus({ message: 'Unable to update patient. Please try again.', isError: true }); }
   }
 
   async function handleSendSms() {
     const phone = getCurrentPhone();
-    if (phone.length !== 10) { setStatus({ message: 'Enter patient phone first.', isError: true }); return; }
+    if (phone.length !== 10) { setStatus({ message: 'Please enter a valid 10-digit patient phone number.', isError: true }); return; }
+    if (!smsPreview.trim()) { setStatus({ message: 'No SMS preview text available to send.', isError: true }); return; }
     try {
       const res = await fetch(API_BASE + '/asha/workflows/send-sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nhm_id: session.nhm_id, patient_phone: phone, message: smsPreview }) });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || 'Failed to queue SMS');
-      setStatus({ message: 'SMS workflow logged.', isError: false });
+      setStatus({ message: 'SMS message queued successfully.', isError: false });
       await fetchDashboard();
     } catch (err) { setStatus({ message: err.message, isError: true }); }
   }
@@ -116,6 +240,22 @@ export default function AshaWorkerPage() {
 
   return (
     <div className="bg-background text-on-surface font-body-md min-h-screen pb-24">
+      {/* Hidden file inputs for direct upload */}
+      <input
+        type="file"
+        ref={prescriptionInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handlePrescriptionUpload}
+      />
+      <input
+        type="file"
+        ref={medInputRef}
+        accept="image/*"
+        className="hidden"
+        onChange={handleMedVerificationUpload}
+      />
+
       <header className="bg-white shadow-sm border-b border-slate-100 flex justify-between items-center w-full px-4 h-16 sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary-container">
@@ -126,6 +266,7 @@ export default function AshaWorkerPage() {
             <p className="text-[10px] text-outline font-label-caps uppercase">{session.nhm_id || ''} • NHM ID</p>
           </div>
         </div>
+        <LanguageSwitcher />
       </header>
 
       <main className="max-w-2xl mx-auto px-4 pt-6 space-y-stack_md">
@@ -144,12 +285,18 @@ export default function AshaWorkerPage() {
             <div className="flex flex-col h-full relative z-10">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4"><span className="material-symbols-outlined text-primary text-2xl">document_scanner</span></div>
               <h3 className="font-h3 text-xl text-primary mb-2 leading-tight">{t('scanPrescription') || 'Prescription'}</h3>
-              <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">Extract medicines from a prescription image and get a Kannada voice explanation.</p>
+              <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
+                {lang === 'hi'
+                  ? 'दवा के पर्चे से दवाइयां निकालें और चुनी हुई भाषा में विवरण प्राप्त करें।'
+                  : lang === 'kn'
+                  ? 'ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್ ಚಿತ್ರದಿಂದ ಔಷಧಿಗಳನ್ನು ಗುರುತಿಸಿ ಧ್ವನಿ ವಿವರಣೆ ಪಡೆಯಿರಿ.'
+                  : 'Extract medicines from a prescription image and get a clear explanation.'}
+              </p>
               <div className="mt-auto grid grid-cols-2 gap-3">
-                <button onClick={() => navigate('/scan-prescription', { state: { mode: 'camera' } })} className="w-full bg-[#00444b] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#003338] transition-colors shadow-md">
+                <button onClick={() => navigate('/scan-prescription', { state: { mode: 'camera', language: lang } })} className="w-full bg-[#00444b] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#003338] transition-colors shadow-md">
                   <span className="material-symbols-outlined text-[20px]">camera_alt</span>{t('capture') || 'Camera'}
                 </button>
-                <button onClick={() => navigate('/scan-prescription', { state: { mode: 'gallery' } })} className="w-full bg-white text-[#00444b] border-2 border-[#00444b]/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
+                <button onClick={() => prescriptionInputRef.current?.click()} className="w-full bg-white text-[#00444b] border-2 border-[#00444b]/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">upload_file</span>{t('upload') || 'Upload'}
                 </button>
               </div>
@@ -161,12 +308,18 @@ export default function AshaWorkerPage() {
             <div className="flex flex-col h-full relative z-10">
               <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center mb-4"><span className="material-symbols-outlined text-secondary text-2xl">fact_check</span></div>
               <h3 className="font-h3 text-xl text-secondary mb-2 leading-tight">{t('medVerify') || 'Medicine Verify'}</h3>
-              <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">Verify safety, check expiry, and fetch batch details of a medicine package.</p>
+              <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
+                {lang === 'hi'
+                  ? 'दवा की सुरक्षा जांचें, एक्सपायरी देखें और बैच का विवरण प्राप्त करें।'
+                  : lang === 'kn'
+                  ? 'ಔಷಧಿಯ ಸುರಕ್ಷತೆ ಪರಿಶೀಲಿಸಿ, ಅವಧಿ ಮುಗಿದಿದೆಯೇ ತಿಳಿಯಿರಿ ಮತ್ತು ಬ್ಯಾಚ್ ವಿವರ ಪಡೆಯಿರಿ.'
+                  : 'Verify safety, check expiry, and fetch batch details of a medicine package.'}
+              </p>
               <div className="mt-auto grid grid-cols-2 gap-3">
-                <button onClick={() => navigate('/med-verification', { state: { mode: 'camera' } })} className="w-full bg-[#006c4b] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#00553b] transition-colors shadow-md">
+                <button onClick={() => navigate('/med-verification', { state: { mode: 'camera', language: lang } })} className="w-full bg-[#006c4b] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#00553b] transition-colors shadow-md">
                   <span className="material-symbols-outlined text-[20px]">qr_code_scanner</span>{t('capture') || 'Camera'}
                 </button>
-                <button onClick={() => navigate('/med-verification', { state: { mode: 'gallery' } })} className="w-full bg-white text-[#006c4b] border-2 border-[#006c4b]/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
+                <button onClick={() => medInputRef.current?.click()} className="w-full bg-white text-[#006c4b] border-2 border-[#006c4b]/10 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors shadow-sm">
                   <span className="material-symbols-outlined text-[20px]">upload</span>{t('upload') || 'Upload'}
                 </button>
               </div>

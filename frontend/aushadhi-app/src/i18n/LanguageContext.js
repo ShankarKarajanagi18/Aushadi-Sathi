@@ -7,11 +7,12 @@ export function LanguageProvider({ children }) {
 
   const toggleLang = useCallback(() => {
     setLang(prev => {
-      const next = prev === 'en' ? 'kn' : 'en';
+      const next = prev === 'en' ? 'kn' : prev === 'kn' ? 'hi' : 'en';
       localStorage.setItem('appLang', next);
       return next;
     });
   }, []);
+
 
   const setLanguage = useCallback((l) => {
     localStorage.setItem('appLang', l);

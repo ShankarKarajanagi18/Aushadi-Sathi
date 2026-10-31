@@ -11,34 +11,37 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+try:
+    from firebase_admin import firestore
+except ImportError:
+    firestore = None
 import requests
 
 from config import FIREBASE_KEY_PATH, OPENROUTER_API_KEY
+from firebase_db import init_db
 from kannada_explainer import explain_in_kannada
 from english_explainer import explain_in_english
+from hindi_explainer import explain_in_hindi
 from medicine_scanner import scan_medicine_label
 from prescription_reader import read_prescription
 from tts_kannada import text_to_kannada_speech
 from tts_english import text_to_english_speech
+from tts_hindi import text_to_hindi_speech
 from verifier import verify_medicine
+from schedule_builder import build_schedule, generate_schedule_summaries
+
+
 
 app = Flask(__name__)
 CORS(app)
 
-
-if not firebase_admin._apps:
-    try:
-        cred = credentials.Certificate(FIREBASE_KEY_PATH)
-        firebase_admin.initialize_app(cred)
-    except Exception as e:
-        print(f"Firebase initialization failed: {e}")
-
-db = firestore.client()
+db, is_mock_db = init_db(FIREBASE_KEY_PATH)
 
 
 def _server_timestamp():
-    return firestore.SERVER_TIMESTAMP
+    if not is_mock_db and firestore:
+        return firestore.SERVER_TIMESTAMP
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _now_iso():
@@ -97,17 +100,26 @@ def _process_prescription_image(image_base64, language="en"):
         
         kannada_text = explain_in_kannada(prescription_json)
         english_text = explain_in_english(prescription_json)
+        hindi_text = explain_in_hindi(prescription_json)
         
-        if language.lower() == "kn":
+        lang_norm = str(language or "en").strip().lower()
+        if lang_norm == "kn":
             explanation_text = kannada_text
+            lang_prefix = "kannada"
+        elif lang_norm == "hi":
+            explanation_text = hindi_text
+            lang_prefix = "hindi"
         else:
             explanation_text = english_text
+            lang_prefix = "english"
 
         explanation_audio = None
         explanation_audio_error = None
         try:
-            if language.lower() == "kn":
+            if lang_norm == "kn":
                 explanation_audio = text_to_kannada_speech(explanation_text)
+            elif lang_norm == "hi":
+                explanation_audio = text_to_hindi_speech(explanation_text)
             else:
                 explanation_audio = text_to_english_speech(explanation_text)
         except Exception as audio_error:
@@ -117,22 +129,27 @@ def _process_prescription_image(image_base64, language="en"):
         explanation_audio_save_error = None
         if explanation_audio:
             try:
-                lang_prefix = "kannada" if language.lower() == "kn" else "english"
                 explanation_audio_path = _save_audio_base64(explanation_audio, f"{lang_prefix}_explanation")
             except Exception as save_error:
                 explanation_audio_save_error = str(save_error)
 
         return {
             "prescription": prescription,
-            "explanation": english_text,
+            "explanation": explanation_text,
+            "english_explanation": english_text,
             "kannada_explanation": kannada_text,
-            "explanation_audio": explanation_audio if language.lower() != "kn" else None,
-            "kannada_explanation_audio": explanation_audio if language.lower() == "kn" else None,
-            "explanation_audio_path": explanation_audio_path if language.lower() != "kn" else None,
-            "kannada_explanation_audio_path": explanation_audio_path if language.lower() == "kn" else None,
+            "hindi_explanation": hindi_text,
+            "explanation_audio": explanation_audio if lang_norm == "en" else None,
+            "kannada_explanation_audio": explanation_audio if lang_norm == "kn" else None,
+            "hindi_explanation_audio": explanation_audio if lang_norm == "hi" else None,
+            "audio": explanation_audio,
+            "audio_path": explanation_audio_path,
+            "explanation_audio_path": explanation_audio_path if lang_norm == "en" else None,
+            "kannada_explanation_audio_path": explanation_audio_path if lang_norm == "kn" else None,
+            "hindi_explanation_audio_path": explanation_audio_path if lang_norm == "hi" else None,
             "explanation_audio_error": explanation_audio_error,
             "explanation_audio_save_error": explanation_audio_save_error,
-            "language": language.lower()
+            "language": lang_norm
         }
     finally:
         if os.path.exists(temp_path):
@@ -148,18 +165,27 @@ def _process_medicine_verification(image_base64, language="en"):
 
         kannada_text = verdict.get('kannada', '')
         english_text = verdict.get('english', '')
+        hindi_text = verdict.get('hindi', '')
 
-        if language.lower() == "kn":
+        lang_norm = str(language or "en").strip().lower()
+        if lang_norm == "kn":
             explanation_text = kannada_text
+            lang_prefix = "kannada"
+        elif lang_norm == "hi":
+            explanation_text = hindi_text
+            lang_prefix = "hindi"
         else:
             explanation_text = english_text
+            lang_prefix = "english"
         
         explanation_audio = None
         explanation_audio_error = None
         if explanation_text:
             try:
-                if language.lower() == "kn":
+                if lang_norm == "kn":
                     explanation_audio = text_to_kannada_speech(explanation_text)
+                elif lang_norm == "hi":
+                    explanation_audio = text_to_hindi_speech(explanation_text)
                 else:
                     explanation_audio = text_to_english_speech(explanation_text)
             except Exception as audio_error:
@@ -169,7 +195,6 @@ def _process_medicine_verification(image_base64, language="en"):
         explanation_audio_save_error = None
         if explanation_audio:
             try:
-                lang_prefix = "kannada" if language.lower() == "kn" else "english"
                 explanation_audio_path = _save_audio_base64(explanation_audio, f"{lang_prefix}_med_explanation")
             except Exception as save_error:
                 explanation_audio_save_error = str(save_error)
@@ -177,15 +202,21 @@ def _process_medicine_verification(image_base64, language="en"):
         return {
             "scan_result": scan_result,
             "verdict": verdict,
-            "explanation": english_text,
+            "explanation": explanation_text,
+            "english_explanation": english_text,
             "kannada_explanation": kannada_text,
-            "explanation_audio": explanation_audio if language.lower() != "kn" else None,
-            "kannada_explanation_audio": explanation_audio if language.lower() == "kn" else None,
-            "explanation_audio_path": explanation_audio_path if language.lower() != "kn" else None,
-            "kannada_explanation_audio_path": explanation_audio_path if language.lower() == "kn" else None,
+            "hindi_explanation": hindi_text,
+            "explanation_audio": explanation_audio if lang_norm == "en" else None,
+            "kannada_explanation_audio": explanation_audio if lang_norm == "kn" else None,
+            "hindi_explanation_audio": explanation_audio if lang_norm == "hi" else None,
+            "audio": explanation_audio,
+            "audio_path": explanation_audio_path,
+            "explanation_audio_path": explanation_audio_path if lang_norm == "en" else None,
+            "kannada_explanation_audio_path": explanation_audio_path if lang_norm == "kn" else None,
+            "hindi_explanation_audio_path": explanation_audio_path if lang_norm == "hi" else None,
             "explanation_audio_error": explanation_audio_error,
             "explanation_audio_save_error": explanation_audio_save_error,
-            "language": language.lower()
+            "language": lang_norm
         }
     finally:
         if os.path.exists(temp_path):
@@ -230,7 +261,14 @@ def _ask_openrouter(question, language="EN"):
         "Content-Type": "application/json"
     }
     
-    lang_name = "Kannada" if language.upper() == "KN" else "English"
+    lang_upper = str(language or "EN").strip().upper()
+    if lang_upper == "KN":
+        lang_name = "Kannada"
+    elif lang_upper == "HI":
+        lang_name = "Hindi"
+    else:
+        lang_name = "English"
+
     
     system_prompt = (
         "You are AushadhiSaathi, a helpful and empathetic rural healthcare assistant in India. "
@@ -326,6 +364,81 @@ def read_prescription_api():
         return jsonify({"success": False, "error": str(error)}), 500
 
 
+@app.route("/api/schedule", methods=["POST"])
+def schedule_api():
+    try:
+        data = request.get_json(silent=True) or {}
+        prescription_input = data.get("prescription") or data.get("medicines") or data
+        language = str(data.get("language", "en")).strip().lower()
+
+        # Build schedule JSON with LLM / resilient fallback
+        schedule_result = build_schedule(prescription_input)
+
+        # Generate English, Kannada, and Hindi spoken summaries using explainer modules
+        summaries = generate_schedule_summaries(schedule_result)
+        summary_en = summaries.get("en", "")
+        summary_kn = summaries.get("kn", "")
+        summary_hi = summaries.get("hi", "")
+
+        # Generate audio using existing TTS modules
+        audio_en = None
+        audio_kn = None
+        audio_hi = None
+        audio_error = None
+
+        try:
+            if language == "hi":
+                audio_hi = text_to_hindi_speech(summary_hi)
+                try:
+                    audio_en = text_to_english_speech(summary_en)
+                except Exception:
+                    pass
+            elif language == "kn":
+                audio_kn = text_to_kannada_speech(summary_kn)
+                try:
+                    audio_en = text_to_english_speech(summary_en)
+                except Exception:
+                    pass
+            else:
+                audio_en = text_to_english_speech(summary_en)
+                try:
+                    audio_kn = text_to_kannada_speech(summary_kn)
+                except Exception:
+                    pass
+        except Exception as tts_err:
+            audio_error = str(tts_err)
+
+        selected_audio = (
+            audio_hi if language == "hi"
+            else audio_kn if language == "kn"
+            else audio_en
+        )
+        if not selected_audio:
+            selected_audio = audio_hi or audio_kn or audio_en
+
+        # Never log or store real patient data
+        return jsonify({
+            "success": True,
+            "schedule": schedule_result.get("schedule", {}),
+            "timetable": schedule_result.get("schedule", {}),
+            "interactions": schedule_result.get("interactions", []),
+            "warnings": schedule_result.get("warnings", []),
+            "summary_en": summary_en,
+            "summary_kn": summary_kn,
+            "summary_hi": summary_hi,
+            "audio_en": audio_en,
+            "audio_kn": audio_kn,
+            "audio_hi": audio_hi,
+            "audio": selected_audio,
+            "audio_error": audio_error,
+            "language": language
+        })
+    except Exception as error:
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+
 @app.route("/verify-medicine", methods=["POST"])
 def verify_medicine_api():
     try:
@@ -346,15 +459,27 @@ def verify_medicine_api():
 @app.route("/speak", methods=["POST"])
 def speak():
     try:
-        text = (request.get_json(silent=True) or {}).get("text")
+        payload = request.get_json(silent=True) or {}
+        text = payload.get("text")
+        language = str(payload.get("language", "kn")).strip().lower()
+
         if not text:
             return jsonify({"success": False, "error": "Missing text"}), 400
 
-        audio_base64 = text_to_kannada_speech(text)
+        if language == "hi":
+            audio_base64 = text_to_hindi_speech(text)
+            lang_prefix = "hindi"
+        elif language == "en":
+            audio_base64 = text_to_english_speech(text)
+            lang_prefix = "english"
+        else:
+            audio_base64 = text_to_kannada_speech(text)
+            lang_prefix = "kannada"
+
         audio_path = None
         audio_save_error = None
         try:
-            audio_path = _save_audio_base64(audio_base64, "tts_output")
+            audio_path = _save_audio_base64(audio_base64, f"{lang_prefix}_tts_output")
         except Exception as save_error:
             audio_save_error = str(save_error)
 
@@ -387,7 +512,8 @@ def report_medicine():
 @app.route("/get-reports", methods=["GET"])
 def get_reports():
     try:
-        docs = db.collection("reports").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(50).get()
+        direction = firestore.Query.DESCENDING if firestore else "DESCENDING"
+        docs = db.collection("reports").order_by("timestamp", direction=direction).limit(50).get()
         reports = [{"id": doc.id, **_to_json_safe(doc.to_dict())} for doc in docs]
         return jsonify({"success": True, "reports": reports})
     except Exception as error:
@@ -494,11 +620,53 @@ def get_patients():
                 return jsonify({"success": True, "patients": []})
             return jsonify({"success": True, "patients": [{"id": doc.id, **_to_json_safe(doc.to_dict())}]})
 
-        docs = db.collection("patients").order_by("last_updated_at", direction=firestore.Query.DESCENDING).limit(limit).stream()
+        direction = firestore.Query.DESCENDING if firestore else "DESCENDING"
+        docs = db.collection("patients").order_by("last_updated_at", direction=direction).limit(limit).stream()
         patients = [{"id": doc.id, **_to_json_safe(doc.to_dict())} for doc in docs]
         return jsonify({"success": True, "patients": patients})
     except Exception as error:
         return jsonify({"success": False, "error": str(error)}), 500
+
+
+def _enrich_workflow_items(scans, verifications):
+    for item in scans:
+        rx = item.get("prescription")
+        if rx:
+            rx_str = json.dumps(rx) if isinstance(rx, dict) else str(rx)
+            try:
+                if not item.get("english_explanation"):
+                    item["english_explanation"] = explain_in_english(rx_str)
+                if not item.get("kannada_explanation"):
+                    item["kannada_explanation"] = explain_in_kannada(rx_str)
+                if not item.get("hindi_explanation"):
+                    item["hindi_explanation"] = explain_in_hindi(rx_str)
+                if not item.get("explanation"):
+                    item_lang = str(item.get("language") or "en").lower()
+                    if item_lang == "kn":
+                        item["explanation"] = item["kannada_explanation"]
+                    elif item_lang == "hi":
+                        item["explanation"] = item["hindi_explanation"]
+                    else:
+                        item["explanation"] = item["english_explanation"]
+            except Exception as e:
+                pass
+
+    for item in verifications:
+        verdict = item.get("verdict") or {}
+        if not item.get("english_explanation"):
+            item["english_explanation"] = verdict.get("english") or item.get("explanation") or ""
+        if not item.get("kannada_explanation"):
+            item["kannada_explanation"] = verdict.get("kannada") or ""
+        if not item.get("hindi_explanation"):
+            item["hindi_explanation"] = verdict.get("hindi") or ""
+        if not item.get("explanation"):
+            item_lang = str(item.get("language") or "en").lower()
+            if item_lang == "kn":
+                item["explanation"] = item["kannada_explanation"]
+            elif item_lang == "hi":
+                item["explanation"] = item["hindi_explanation"]
+            else:
+                item["explanation"] = item["english_explanation"]
 
 
 @app.route("/asha/dashboard", methods=["GET"])
@@ -516,10 +684,14 @@ def asha_dashboard():
         recent_verifications_raw = db.collection("asha_medicine_verifications").where("nhm_id", "==", nhm_id).limit(50).stream()
         recent_messages_raw = db.collection("asha_messages").where("nhm_id", "==", nhm_id).limit(50).stream()
 
+        scans = _sorted_firestore_docs(recent_scans_raw, limit=5)
+        verifications = _sorted_firestore_docs(recent_verifications_raw, limit=5)
+        _enrich_workflow_items(scans, verifications)
+
         dashboard = {
             "worker": {"id": worker_doc.id, **_to_json_safe(worker_doc.to_dict())},
-            "recent_prescription_scans": _sorted_firestore_docs(recent_scans_raw, limit=5),
-            "recent_medicine_verifications": _sorted_firestore_docs(recent_verifications_raw, limit=5),
+            "recent_prescription_scans": scans,
+            "recent_medicine_verifications": verifications,
             "recent_messages": _sorted_firestore_docs(recent_messages_raw, limit=5),
         }
         return jsonify({"success": True, "dashboard": dashboard})
@@ -534,7 +706,7 @@ def asha_prescription_scan():
         nhm_id = _normalize_nhm_id(data.get("nhm_id"))
         patient_phone = _normalize_phone(data.get("patient_phone"))
         image_base64 = data.get("image")
-        language = str(data.get("language", "en")).strip()
+        language = str(data.get("language", "en")).strip().lower()
 
         if not nhm_id or len(patient_phone) != 10 or not image_base64:
             return jsonify({"success": False, "error": "nhm_id, patient_phone and image are required"}), 400
@@ -545,8 +717,15 @@ def asha_prescription_scan():
             "nhm_id": nhm_id,
             "patient_phone": patient_phone,
             "prescription": result["prescription"],
-            "kannada_explanation": result["kannada_explanation"],
-            "kannada_explanation_audio_path": result["kannada_explanation_audio_path"],
+            "explanation": result["explanation"],
+            "english_explanation": result.get("english_explanation", result["explanation"]),
+            "kannada_explanation": result.get("kannada_explanation"),
+            "hindi_explanation": result.get("hindi_explanation"),
+            "language": language,
+            "audio_path": result.get("audio_path"),
+            "explanation_audio_path": result.get("explanation_audio_path"),
+            "kannada_explanation_audio_path": result.get("kannada_explanation_audio_path"),
+            "hindi_explanation_audio_path": result.get("hindi_explanation_audio_path"),
             "created_at": _server_timestamp(),
         })
 
@@ -563,7 +742,7 @@ def asha_medicine_verify():
         nhm_id = _normalize_nhm_id(data.get("nhm_id"))
         patient_phone = _normalize_phone(data.get("patient_phone"))
         image_base64 = data.get("image")
-        language = str(data.get("language", "en")).strip()
+        language = str(data.get("language", "en")).strip().lower()
 
         if not nhm_id or len(patient_phone) != 10 or not image_base64:
             return jsonify({"success": False, "error": "nhm_id, patient_phone and image are required"}), 400
@@ -574,8 +753,15 @@ def asha_medicine_verify():
             "patient_phone": patient_phone,
             "scan_result": result["scan_result"],
             "verdict": result["verdict"],
+            "explanation": result["explanation"],
+            "english_explanation": result.get("english_explanation", result["explanation"]),
             "kannada_explanation": result.get("kannada_explanation"),
+            "hindi_explanation": result.get("hindi_explanation"),
+            "language": language,
+            "audio_path": result.get("audio_path"),
+            "explanation_audio_path": result.get("explanation_audio_path"),
             "kannada_explanation_audio_path": result.get("kannada_explanation_audio_path"),
+            "hindi_explanation_audio_path": result.get("hindi_explanation_audio_path"),
             "created_at": _server_timestamp(),
         })
 
@@ -633,15 +819,49 @@ def asha_workflow_history():
         verifications_raw = verifications_query.limit(100).stream()
         messages_raw = messages_query.limit(100).stream()
 
+        scans = _sorted_firestore_docs(scans_raw, limit=limit)
+        verifications = _sorted_firestore_docs(verifications_raw, limit=limit)
+        _enrich_workflow_items(scans, verifications)
+
         return jsonify({
             "success": True,
             "history": {
-                "scans": _sorted_firestore_docs(scans_raw, limit=limit),
-                "verifications": _sorted_firestore_docs(verifications_raw, limit=limit),
+                "scans": scans,
+                "verifications": verifications,
                 "messages": _sorted_firestore_docs(messages_raw, limit=limit),
             },
         })
     except Exception as error:
+        return jsonify({"success": False, "error": str(error)}), 500
+
+
+@app.route("/asha/workflows/explain-prescription", methods=["POST"])
+@app.route("/explain-prescription", methods=["POST"])
+def explain_prescription_route():
+    try:
+        data = request.get_json(silent=True) or {}
+        prescription = data.get("prescription")
+        language = str(data.get("language", "en")).strip().lower()
+
+        if not prescription:
+            return jsonify({"success": False, "error": "prescription is required"}), 400
+
+        rx_str = json.dumps(prescription) if isinstance(prescription, dict) else str(prescription)
+
+        if language == "kn":
+            explanation = explain_in_kannada(rx_str)
+        elif language == "hi":
+            explanation = explain_in_hindi(rx_str)
+        else:
+            explanation = explain_in_english(rx_str)
+
+        return jsonify({
+            "success": True,
+            "explanation": explanation,
+            "language": language
+        })
+    except Exception as error:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(error)}), 500
 
 

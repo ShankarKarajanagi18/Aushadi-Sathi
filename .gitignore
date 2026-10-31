@@ -62,3 +62,6 @@ coverage/
 .pnp
 .pnp.js
 backend/audio/*.mp3
+
+PROMPT_DOCUMENTATION.html
+PROMPT_DOCUMENTATION.pdf

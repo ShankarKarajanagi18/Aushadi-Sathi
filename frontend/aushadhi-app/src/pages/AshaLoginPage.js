@@ -4,11 +4,13 @@ import { API_BASE } from '../api';
 import useAshaSession from '../hooks/useAshaSession';
 import { useLang } from '../i18n/LanguageContext';
 import T from '../i18n/translations';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
+
 
 export default function AshaLoginPage() {
   const navigate = useNavigate();
   const { saveSession } = useAshaSession();
-  const { lang, toggleLang } = useLang();
+  const { lang } = useLang();
   const t = (key) => (T[key] && T[key][lang]) || T[key]?.en || key;
   const [fullName, setFullName] = useState('');
   const [nhmId, setNhmId] = useState('');
@@ -35,7 +37,7 @@ export default function AshaLoginPage() {
       setSuccess(t('loginSuccess'));
       setTimeout(() => navigate('/asha-worker'), 500);
     } catch (err) {
-      setError(err.message || 'Unable to reach backend.');
+      setError(err.message || 'Unable to connect. Please check your network and try again.');
     } finally { setLoading(false); }
   }
 
@@ -49,12 +51,10 @@ export default function AshaLoginPage() {
             </button>
             <h1 className="font-manrope text-base md:text-lg font-bold tracking-tight text-[#005D67] dark:text-teal-400">AushadhiSaathi</h1>
           </div>
-          <button onClick={toggleLang} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg text-primary">
-            <span className="material-symbols-outlined text-sm">language</span>
-            <span className="text-xs font-bold font-manrope">{lang === 'en' ? 'EN' : 'ಕನ್ನಡ'}</span>
-          </button>
+          <LanguageSwitcher />
         </div>
       </header>
+
 
       <main className="flex-grow flex items-center justify-center px-margin_mobile md:px-margin_desktop py-stack_lg">
         <div className="w-full max-w-lg">

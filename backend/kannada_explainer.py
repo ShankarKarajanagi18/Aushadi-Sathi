@@ -318,6 +318,86 @@ def explain_in_kannada(prescription_json_string):
       return _fallback_kannada_explanation(prescription_json_string)
 
 
+def explain_schedule_in_kannada(schedule_data):
+    """Generate a spoken Kannada summary for daily dose timetable and safety check."""
+    if not isinstance(schedule_data, dict):
+        return "ಇದು ನಿಮ್ಮ ಔಷಧಿ ವೇಳಾಪಟ್ಟಿ. ಯಾವುದೇ ಸಂದೇಹವಿದ್ದರೆ ದಯವಿಟ್ಟು ಫಾರ್ಮಾಸಿಸ್ಟ್ ಅಥವಾ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ."
+
+    schedule = schedule_data.get("schedule") or {}
+    morning = schedule.get("morning") or []
+    afternoon = schedule.get("afternoon") or []
+    night = schedule.get("night") or []
+    interactions = schedule_data.get("interactions") or []
+    warnings = schedule_data.get("warnings") or []
+
+    lines = [
+        "ನಮಸ್ಕಾರ! ಇದು ನಿಮ್ಮ ದಿನನಿತ್ಯದ ಔಷಧಿ ವೇಳಾಪಟ್ಟಿ ಮತ್ತು ಸುರಕ್ಷತಾ ವಿವರಣೆ."
+    ]
+
+    def _format_ka_item(m):
+        med_name = _spoken_medicine_name(m.get("medicine") or m.get("name") or "ಔಷಧಿ")
+        dose_raw = str(m.get("dose") or "").strip()
+        dose_ka = _normalize_dose_text(dose_raw)
+        if "unsure" in dose_raw.lower():
+            dose_ka = "ಡೋಸ್ ಬಗ್ಗೆ ಫಾರ್ಮಾಸಿಸ್ಟ್ ಕೇಳಿ"
+
+        timing_raw = str(m.get("food") or m.get("timing") or "").strip()
+        timing_ka = _normalize_time_text(timing_raw)
+        if "unsure" in timing_raw.lower():
+            timing_ka = "ಊಟದ ಸಮಯದ ಬಗ್ಗೆ ಫಾರ್ಮಾಸಿಸ್ಟ್ ಕೇಳಿ"
+
+        parts = [med_name]
+        if dose_ka:
+            parts.append(dose_ka)
+        if timing_ka:
+            parts.append(timing_ka)
+        return ", ".join(parts)
+
+    # Morning
+    if morning:
+        items = [_format_ka_item(m) for m in morning]
+        lines.append("ಬೆಳಿಗ್ಗೆ ತೆಗೆದುಕೊಳ್ಳಬೇಕಾದ ಔಷಧಿಗಳು: " + "; ".join(items) + ".")
+    else:
+        lines.append("ಬೆಳಿಗ್ಗೆ ಯಾವುದೇ ಔಷಧಿ ನಿಗದಿಯಾಗಿಲ್ಲ.")
+
+    # Afternoon
+    if afternoon:
+        items = [_format_ka_item(m) for m in afternoon]
+        lines.append("ಮಧ್ಯಾಹ್ನ ತೆಗೆದುಕೊಳ್ಳಬೇಕಾದ ಔಷಧಿಗಳು: " + "; ".join(items) + ".")
+    else:
+        lines.append("ಮಧ್ಯಾಹ್ನ ಯಾವುದೇ ಔಷಧಿ ನಿಗದಿಯಾಗಿಲ್ಲ.")
+
+    # Night
+    if night:
+        items = [_format_ka_item(m) for m in night]
+        lines.append("ರಾತ್ರಿ ತೆಗೆದುಕೊಳ್ಳಬೇಕಾದ ಔಷಧಿಗಳು: " + "; ".join(items) + ".")
+    else:
+        lines.append("ರಾತ್ರಿ ಯಾವುದೇ ಔಷಧಿ ನಿಗದಿಯಾಗಿಲ್ಲ.")
+
+    # Safety
+    high_or_med = [
+        item for item in interactions 
+        if str(item.get("risk", "")).lower() in ("high", "medium")
+    ]
+    if high_or_med:
+        lines.append("ಔಷಧಿ ಸುರಕ್ಷತಾ ಮುನ್ನೆಚ್ಚರಿಕೆ:")
+        for item in high_or_med[:2]:
+            meds = ", ".join(item.get("medicines") or [])
+            note_ka = _translate_medical_text_to_kannada(item.get("note", ""))
+            lines.append(f"{meds} ಔಷಧಿಗಳ ಬಗ್ಗೆ ಎಚ್ಚರಿಕೆ: {note_ka}")
+    elif interactions:
+        lines.append("ಔಷಧಿ ಸುರಕ್ಷತಾ ಪರಿಶೀಲನೆ: ಯಾವುದೇ ಅಪಾಯಕಾರಿ ಪರಸ್ಪರ ಕ್ರಿಯೆ ಕಂಡುಬಂದಿಲ್ಲ.")
+    else:
+        lines.append("ಔಷಧಿ ಸುರಕ್ಷತಾ ಪರಿಶೀಲನೆ: ನಿಗದಿತ ಔಷಧಿಗಳು ಸುರಕ್ಷಿತವಾಗಿವೆ.")
+
+    if warnings:
+        for w in warnings[:2]:
+            lines.append("ಮುಖ್ಯ ಎಚ್ಚರಿಕೆ: " + _translate_medical_text_to_kannada(w))
+
+    lines.append("ಇದು ವೈದ್ಯಕೀಯ ಸಲಹೆಯಲ್ಲ. ಯಾವುದೇ ಸಂದೇಹವಿದ್ದರೆ ನಿಮ್ಮ ಫಾರ್ಮಾಸಿಸ್ಟ್ ಅಥವಾ ವೈದ್ಯರನ್ನು ಭೇಟಿ ಮಾಡಿ.")
+    return "\n".join(lines)
+
+
 # TEST
 if __name__ == "__main__":
     # Paste a sample JSON here to test
