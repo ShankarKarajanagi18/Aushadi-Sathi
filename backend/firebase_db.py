@@ -181,13 +181,37 @@ def init_db(key_path_setting):
     if _global_db_instance is not None:
         return _global_db_instance, _is_mock_instance
 
-    key_path = os.path.abspath(key_path_setting) if not os.path.isabs(key_path_setting) else key_path_setting
-    if not os.path.exists(key_path):
-        alt_path = os.path.join(os.path.dirname(__file__), key_path_setting)
-        if os.path.exists(alt_path):
-            key_path = alt_path
+    # 1. Check if credentials JSON is provided directly as an environment variable (best for cloud platforms like Render)
+    cred_json_env = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON") or os.environ.get("FIREBASE_CREDENTIALS_JSON")
+    if cred_json_env and firebase_admin:
+        try:
+            import json
+            cred_dict = json.loads(cred_json_env)
+            if not firebase_admin._apps:
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+            _global_db_instance = firestore.client()
+            _is_mock_instance = False
+            print("[Firebase] Successfully connected to Firestore using FIREBASE_SERVICE_ACCOUNT_JSON environment variable")
+            return _global_db_instance, _is_mock_instance
+        except Exception as e:
+            print(f"[Firebase] Warning: Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: {e}")
 
-    if os.path.exists(key_path) and os.path.isfile(key_path) and firebase_admin:
+    # 2. Check candidate file paths (including Render Secret Files mount path)
+    candidate_paths = [
+        key_path_setting,
+        os.path.abspath(key_path_setting) if not os.path.isabs(key_path_setting) else None,
+        os.path.join(os.path.dirname(__file__), key_path_setting),
+        "/etc/secrets/firebase-key.json",
+        os.path.join(os.path.dirname(__file__), "firebase-key.json"),
+    ]
+    key_path = None
+    for p in candidate_paths:
+        if p and os.path.exists(p) and os.path.isfile(p):
+            key_path = p
+            break
+
+    if key_path and firebase_admin:
         try:
             if not firebase_admin._apps:
                 cred = credentials.Certificate(key_path)
