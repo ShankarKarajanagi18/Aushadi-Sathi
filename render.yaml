@@ -14,3 +14,4 @@ services:
         sync: false
       - key: FIREBASE_KEY_PATH
         value: firebase-key.json
+
